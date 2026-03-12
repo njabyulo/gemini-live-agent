@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import { INPUT_AUDIO_MIME_TYPE } from "@agent-tutor/shared/consts";
 import {
   SBrowserEvent,
+  type TBrowserContextEvent,
   type TBrowserStartEvent,
   type TServerErrorEvent,
   type TServerStatusEvent,
@@ -29,6 +30,10 @@ const wss = new WebSocketServer({ server, path: "/live" });
 wss.on("connection", (socket) => {
   let session: Awaited<ReturnType<typeof createLiveTutorSession>> | null = null;
   let startEvent: TBrowserStartEvent | null = null;
+  let currentContext: Pick<
+    TBrowserContextEvent,
+    "terminalOutput" | "testStateId"
+  > | null = null;
 
   const sendJson = (payload: object): void => {
     if (socket.readyState === socket.OPEN) {
@@ -42,7 +47,15 @@ wss.on("connection", (socket) => {
 
       if (parsed.type === "start") {
         startEvent = parsed;
-        session = await createLiveTutorSession({ socket, startEvent: parsed });
+        currentContext = {
+          terminalOutput: parsed.terminalOutput ?? "",
+          testStateId: parsed.testStateId ?? "state-1",
+        };
+        session = await createLiveTutorSession({
+          socket,
+          startEvent: parsed,
+          getCurrentContext: () => currentContext,
+        });
         return;
       }
 
@@ -100,6 +113,25 @@ wss.on("connection", (socket) => {
         return;
       }
 
+      if (parsed.type === "context") {
+        currentContext = {
+          terminalOutput: parsed.terminalOutput,
+          testStateId: parsed.testStateId,
+        };
+        session.sendRealtimeInput({
+          text: [
+            "Context update from the workspace:",
+            `Test state: ${parsed.testStateId}`,
+            `Terminal output:\n${parsed.terminalOutput}`,
+          ].join("\n\n"),
+        });
+        sendJson({
+          type: "status",
+          phase: "thinking",
+        } satisfies TServerStatusEvent);
+        return;
+      }
+
       if (parsed.type === "interrupt") {
         try {
           session.sendRealtimeInput({ activityEnd: true });
@@ -118,6 +150,7 @@ wss.on("connection", (socket) => {
         session.close();
         session = null;
         startEvent = null;
+        currentContext = null;
         sendJson({
           type: "status",
           phase: "ready",

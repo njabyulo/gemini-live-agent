@@ -6,6 +6,7 @@ import {
 import type {
   IFunctionCallResult,
   TBrowserStartEvent,
+  TBrowserContextEvent,
   TServerAudioOutEvent,
   TServerErrorEvent,
   TServerInputTranscriptEvent,
@@ -66,9 +67,14 @@ const sendJson = (socket: WebSocket, payload: object): void => {
 };
 
 export const createLiveTutorSession = async ({
+  getCurrentContext,
   socket,
   startEvent,
 }: {
+  getCurrentContext: () => Pick<
+    TBrowserContextEvent,
+    "terminalOutput" | "testStateId"
+  > | null;
   socket: WebSocket;
   startEvent: TBrowserStartEvent;
 }): Promise<LiveSession> => {
@@ -170,11 +176,17 @@ export const createLiveTutorSession = async ({
               }
 
               if (functionCall.name === "get_latest_test_output") {
+                const currentContext = getCurrentContext();
                 result = {
                   testState: getLatestTestOutput({
-                    testStateId: args.testStateId ?? startEvent.testStateId,
+                    testStateId:
+                      args.testStateId ??
+                      currentContext?.testStateId ??
+                      startEvent.testStateId,
                     terminalOutput:
-                      args.terminalOutput ?? startEvent.terminalOutput,
+                      args.terminalOutput ??
+                      currentContext?.terminalOutput ??
+                      startEvent.terminalOutput,
                   }),
                 };
               }
