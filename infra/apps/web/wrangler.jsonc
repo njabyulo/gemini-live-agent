@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../node_modules/wrangler/config-schema.json",
+  "name": "agent-tutor-web",
+  "main": "../../../apps/web/.open-next/worker.js",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "../../../apps/web/.open-next/assets",
+  },
+  "compatibility_date": "2026-03-12",
+  "workers_dev": false,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+  },
+  "routes": [
+    {
+      "pattern": "gemini-live.njabulomajozi.com",
+      "custom_domain": true,
+    },
+  ],
+}
