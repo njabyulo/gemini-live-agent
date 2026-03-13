@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, IBM_Plex_Mono, Instrument_Sans } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
 
 const uiFont = Instrument_Sans({
   variable: "--font-ui",
@@ -19,8 +20,8 @@ const monoFont = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Garrii Live Mentor",
-  description: "Gemini Live coding mentor demo workspace",
+  title: "Agent Tutor",
+  description: "Python practice workspace with a live Gemini tutor",
 };
 
 export default function RootLayout({
@@ -33,7 +34,7 @@ export default function RootLayout({
       <body
         className={`${uiFont.variable} ${displayFont.variable} ${monoFont.variable} antialiased`}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

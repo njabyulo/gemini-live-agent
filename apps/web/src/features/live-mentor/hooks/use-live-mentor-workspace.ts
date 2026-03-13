@@ -1,0 +1,215 @@
+"use client";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+
+import { useSession } from "~/features/auth/services/auth-client";
+
+import {
+  bootstrapLessonWorkspace,
+  resetLessonWorkspace,
+  runLessonCommand,
+  updateMainFile,
+} from "../services/lesson-api";
+import { useLiveMentorStore } from "../states/use-live-mentor-store";
+import {
+  formatPythonProgramCommand,
+  formatTerminalExchange,
+  PYTEST_COMMAND,
+} from "../utils/terminal";
+
+export function useLiveMentorWorkspace() {
+  const queryClient = useQueryClient();
+  const lastSavedSourceRef = useRef<string>("");
+
+  const {
+    data: session,
+    error: sessionError,
+    isPending: isSessionPending,
+  } = useSession();
+
+  const activeFilePath = useLiveMentorStore((state) => state.activeFilePath);
+  const files = useLiveMentorStore((state) => state.files);
+  const lesson = useLiveMentorStore((state) => state.lesson);
+  const programInput = useLiveMentorStore((state) => state.programInput);
+  const runtime = useLiveMentorStore((state) => state.runtime);
+  const sandboxId = useLiveMentorStore((state) => state.sandboxId);
+  const sessionPhase = useLiveMentorStore((state) => state.sessionPhase);
+  const terminalBuffer = useLiveMentorStore((state) => state.terminalBuffer);
+  const transcripts = useLiveMentorStore((state) => state.transcripts);
+  const typedPrompt = useLiveMentorStore((state) => state.typedPrompt);
+  const setActiveFilePath = useLiveMentorStore(
+    (state) => state.setActiveFilePath,
+  );
+  const hydrateWorkspace = useLiveMentorStore(
+    (state) => state.hydrateWorkspace,
+  );
+  const publishRuntime = useLiveMentorStore((state) => state.publishRuntime);
+  const resetWorkspace = useLiveMentorStore((state) => state.resetWorkspace);
+  const setFileContent = useLiveMentorStore((state) => state.setFileContent);
+  const setProgramInput = useLiveMentorStore((state) => state.setProgramInput);
+  const setSession = useLiveMentorStore((state) => state.setSession);
+  const setTypedPrompt = useLiveMentorStore((state) => state.setTypedPrompt);
+  const appendTerminalBuffer = useLiveMentorStore(
+    (state) => state.appendTerminalBuffer,
+  );
+  const appendTranscript = useLiveMentorStore(
+    (state) => state.appendTranscript,
+  );
+
+  const workspaceQuery = useQuery({
+    enabled: Boolean(session?.user),
+    gcTime: 0,
+    queryFn: bootstrapLessonWorkspace,
+    queryKey: ["lesson-workspace", session?.user?.id],
+    staleTime: 0,
+  });
+
+  const saveFileMutation = useMutation({
+    mutationFn: updateMainFile,
+  });
+
+  const runCommandMutation = useMutation({
+    mutationFn: runLessonCommand,
+    onSuccess: (nextRuntime, variables) => {
+      publishRuntime(nextRuntime);
+      appendTerminalBuffer(
+        `${formatTerminalExchange(variables.command, nextRuntime)}\r\n`,
+      );
+    },
+  });
+
+  const resetMutation = useMutation({
+    mutationFn: resetLessonWorkspace,
+    onSuccess: (payload) => {
+      lastSavedSourceRef.current = payload.snapshot.sourceCode;
+      hydrateWorkspace(payload);
+    },
+  });
+
+  useEffect(() => {
+    setSession(
+      session
+        ? {
+            session: {
+              expiresAt: session.session.expiresAt.toISOString(),
+              id: session.session.id,
+            },
+            user: {
+              email: session.user.email,
+              id: session.user.id,
+              image: session.user.image ?? null,
+              name: session.user.name,
+            },
+          }
+        : null,
+    );
+  }, [session, setSession]);
+
+  useEffect(() => {
+    if (!workspaceQuery.data) {
+      return;
+    }
+
+    lastSavedSourceRef.current = workspaceQuery.data.snapshot.sourceCode;
+    hydrateWorkspace(workspaceQuery.data);
+  }, [hydrateWorkspace, workspaceQuery.data]);
+
+  const sourceFile = files.find((file) => file.path === "/workspace/main.py");
+  const sourceCode = sourceFile?.content ?? runtime.sourceCode;
+
+  useEffect(() => {
+    if (
+      !sandboxId ||
+      !sourceCode ||
+      sourceCode === lastSavedSourceRef.current
+    ) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      lastSavedSourceRef.current = sourceCode;
+      saveFileMutation.mutate({
+        content: sourceCode,
+        sandboxId,
+      });
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [sandboxId, saveFileMutation, sourceCode]);
+
+  const activeFile =
+    files.find((file) => file.path === activeFilePath) ?? files[0] ?? null;
+
+  const executeCommand = (command: string) => {
+    if (!sandboxId) {
+      return;
+    }
+
+    appendTerminalBuffer(`$ ${command}\r\n`);
+    runCommandMutation.mutate({
+      command,
+      sandboxId,
+      sourceCode,
+    });
+  };
+
+  const runProgram = () => {
+    executeCommand(formatPythonProgramCommand(programInput));
+  };
+
+  const runTests = () => {
+    executeCommand(PYTEST_COMMAND);
+  };
+
+  const resetLesson = () => {
+    resetWorkspace();
+    void queryClient.cancelQueries({ queryKey: ["lesson-workspace"] });
+    resetMutation.mutate();
+  };
+
+  useEffect(() => {
+    if (!sessionError) {
+      return;
+    }
+
+    appendTranscript(
+      "system",
+      "Session lookup failed. Check the API auth setup.",
+    );
+  }, [appendTranscript, sessionError]);
+
+  return {
+    activeFile,
+    files,
+    isBootstrapping:
+      isSessionPending || workspaceQuery.isPending || resetMutation.isPending,
+    isRunningCommand: runCommandMutation.isPending,
+    isSessionPending,
+    lesson,
+    programInput,
+    runtime,
+    session,
+    sessionError,
+    sessionPhase,
+    terminalBuffer,
+    transcripts,
+    typedPrompt,
+    updateActiveFile: setActiveFilePath,
+    updateProgramInput: setProgramInput,
+    updateFileContent: (content: string) => {
+      if (!activeFile?.isEditable) {
+        return;
+      }
+
+      setFileContent(activeFile.path, content);
+    },
+    resetLesson,
+    runProgram,
+    runTests,
+    setTypedPrompt,
+    userEmail: session?.user.email ?? "",
+  };
+}

@@ -1,5 +1,5 @@
-import { LiveMentorWorkspace } from "~/features/live-mentor/components/live-mentor-workspace";
+import { LandingScreen } from "~/features/auth/components/landing-screen";
 
 export default function Home() {
-  return <LiveMentorWorkspace />;
+  return <LandingScreen />;
 }

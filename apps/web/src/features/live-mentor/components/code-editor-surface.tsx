@@ -1,29 +1,26 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import Editor, { type Monaco } from "@monaco-editor/react";
+import {
+  BookOpenText,
+  FileCode2,
+  FlaskConical,
+  FolderTree,
+} from "lucide-react";
 
-import type { IWorkspaceFile } from "../types";
+import { Badge } from "~/components/ui/badge";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "~/components/ui/tabs";
 
-const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
-  ssr: false,
-  loading: () => (
-    <div className="flex h-full min-h-[420px] items-center justify-center bg-[#141924] text-sm text-[#96a6c4]">
-      Loading Monaco workspace...
-    </div>
-  ),
-});
+import type { IWorkspaceFileRecord } from "@agent-tutor/shared/types";
 
-function getLanguage(path: string): string {
-  if (path.endsWith(".tsx")) {
-    return "typescript";
-  }
-
-  if (path.endsWith(".ts")) {
-    return "typescript";
-  }
-
-  if (path.endsWith(".json")) {
-    return "json";
+const resolveLanguage = (path: string) => {
+  if (path.endsWith(".py")) {
+    return "python";
   }
 
   if (path.endsWith(".md")) {
@@ -31,100 +28,136 @@ function getLanguage(path: string): string {
   }
 
   return "plaintext";
-}
+};
+
+const getFileIcon = (path: string) => {
+  if (path.endsWith("test_main.py")) {
+    return <FlaskConical className="h-4 w-4 text-[#ffb86b]" />;
+  }
+
+  if (path.endsWith(".md")) {
+    return <BookOpenText className="h-4 w-4 text-[#6fb5ff]" />;
+  }
+
+  return <FileCode2 className="h-4 w-4 text-[#72e7cf]" />;
+};
+
+const handleBeforeMount = (monaco: Monaco) => {
+  monaco.editor.defineTheme("agent-tutor-dark", {
+    base: "vs-dark",
+    inherit: true,
+    colors: {
+      "editor.background": "#0e131d",
+      "editor.foreground": "#e7eefb",
+      "editor.lineHighlightBackground": "#1a2232",
+      "editorLineNumber.foreground": "#6b7d99",
+      "editorLineNumber.activeForeground": "#cad7ed",
+      "editor.selectionBackground": "#254463",
+      "editorCursor.foreground": "#7ce7d3",
+      "editorIndentGuide.background1": "#1d2940",
+      "editorIndentGuide.activeBackground1": "#35516c",
+      "minimap.background": "#0b1018",
+    },
+    rules: [
+      { token: "comment", foreground: "627693", fontStyle: "italic" },
+      { token: "keyword", foreground: "8cc8ff" },
+      { token: "string", foreground: "a5f3a2" },
+      { token: "number", foreground: "ffc279" },
+      { token: "delimiter", foreground: "8aa2c8" },
+    ],
+  });
+};
 
 export function CodeEditorSurface({
   activeFile,
+  files,
   onChange,
+  onSelectFile,
 }: {
-  activeFile: IWorkspaceFile;
+  activeFile: IWorkspaceFileRecord | null;
+  files: IWorkspaceFileRecord[];
   onChange: (value: string) => void;
+  onSelectFile: (path: string) => void;
 }) {
   return (
-    <MonacoEditor
-      beforeMount={(monaco) => {
-        monaco.editor.defineTheme("garrii-night", {
-          base: "vs-dark",
-          inherit: true,
-          rules: [
-            { token: "comment", foreground: "6f869f" },
-            { token: "keyword", foreground: "c679ff" },
-            { token: "string", foreground: "e8d177" },
-            { token: "number", foreground: "7dd6c2" },
-            { token: "identifier", foreground: "dbe7ff" },
-            { token: "delimiter", foreground: "8297b6" },
-          ],
-          colors: {
-            "editor.background": "#141924",
-            "editor.foreground": "#edf3ff",
-            "editorGutter.background": "#141924",
-            "editor.lineHighlightBackground": "#1b2230",
-            "editor.lineHighlightBorder": "#00000000",
-            "editorCursor.foreground": "#73e0c2",
-            "editorBracketMatch.background": "#27415f55",
-            "editorBracketMatch.border": "#4c87d1",
-            "editor.findMatchBackground": "#2f4f6f88",
-            "editor.findMatchHighlightBackground": "#2f4f6f44",
-            "editor.hoverHighlightBackground": "#20324a55",
-            "editor.selectionBackground": "#2f4f6f66",
-            "editor.inactiveSelectionBackground": "#2f4f6f44",
-            "editorLineNumber.foreground": "#7f91ac",
-            "editorLineNumber.activeForeground": "#c0d1eb",
-            "editorIndentGuide.background1": "#263244",
-            "editorIndentGuide.activeBackground1": "#38506e",
-            "editorWhitespace.foreground": "#32425a",
-            "editorWidget.background": "#1a2130",
-            "minimap.background": "#101520",
-            "minimap.selectionHighlight": "#2f4f6f55",
-          },
-        });
-      }}
-      defaultLanguage={getLanguage(activeFile.path)}
-      height="100%"
-      keepCurrentModel
-      language={getLanguage(activeFile.path)}
-      loading="Loading editor..."
-      onChange={(value) => onChange(value ?? "")}
-      options={{
-        automaticLayout: true,
-        bracketPairColorization: { enabled: true },
-        cursorStyle: "line-thin",
-        contextmenu: false,
-        cursorBlinking: "smooth",
-        cursorSmoothCaretAnimation: "on",
-        fontFamily: "var(--font-mono)",
-        fontLigatures: true,
-        fontSize: 15,
-        lineHeight: 24,
-        glyphMargin: true,
-        guides: { bracketPairs: true, indentation: true },
-        minimap: {
-          enabled: true,
-          side: "right",
-          size: "fit",
-          maxColumn: 100,
-          renderCharacters: false,
-          showSlider: "mouseover",
-        },
-        padding: { top: 20, bottom: 24 },
-        readOnly: !activeFile.isEditable,
-        renderLineHighlightOnlyWhenFocus: false,
-        roundedSelection: false,
-        rulers: [88],
-        scrollBeyondLastLine: false,
-        scrollbar: {
-          alwaysConsumeMouseWheel: false,
-          horizontalScrollbarSize: 10,
-          verticalScrollbarSize: 10,
-        },
-        stickyScroll: { enabled: false },
-        smoothScrolling: true,
-        wordWrap: "on",
-      }}
-      path={activeFile.path}
-      saveViewState
-      theme="garrii-night"
-      value={activeFile.content}
-    />
+    <section className="panel-surface editor-grid flex min-h-0 flex-col overflow-hidden rounded-[24px] border border-white/8">
+      <div className="flex items-center justify-between gap-3 border-b border-white/8 bg-[#0d121b] px-4 py-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="rounded-2xl border border-[#72e7cf]/20 bg-[#12202a] p-2 text-[#72e7cf]">
+            <FolderTree className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="workspace-eyebrow">Workspace</p>
+            <p className="truncate text-sm text-[#dde8fa]">
+              Python foundations / echo-input
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <Tabs
+        value={activeFile?.path ?? files[0]?.path ?? "/workspace/main.py"}
+        onValueChange={onSelectFile}
+        className="min-h-0 flex-1 gap-0"
+      >
+        <TabsList
+          variant="line"
+          className="h-auto w-full flex-wrap justify-start gap-2 border-b border-white/8 bg-[#111723] px-3 py-2"
+        >
+          {files.map((file) => (
+            <TabsTrigger
+              key={file.path}
+              value={file.path}
+              className="rounded-t-2xl border border-transparent px-3 py-2 text-sm text-[#89a1c0] hover:bg-[#141b28] hover:text-[#d9e6fa] data-active:border-white/10 data-active:bg-[#161e2c] data-active:text-[#f2f7ff] data-active:after:hidden"
+            >
+              {getFileIcon(file.path)}
+              <span>{file.path.split("/").at(-1)}</span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        <div className="flex items-center justify-between gap-3 border-b border-white/8 bg-[#0f1520] px-4 py-2.5 text-xs text-[#8ca0bf]">
+          <span className="truncate">
+            {activeFile?.path ?? "/workspace/main.py"}
+          </span>
+          <Badge
+            variant="outline"
+            className="rounded-full border-white/10 bg-[#141b28] px-2.5 py-1 text-[11px] text-[#d9e6fa]"
+          >
+            {activeFile?.isEditable ? "Editable" : "Reference file"}
+          </Badge>
+        </div>
+
+        <TabsContent
+          value={activeFile?.path ?? files[0]?.path ?? "/workspace/main.py"}
+          className="min-h-0 flex-1 bg-[#0e131d]"
+        >
+          <Editor
+            beforeMount={handleBeforeMount}
+            defaultLanguage="python"
+            language={resolveLanguage(activeFile?.path ?? "/workspace/main.py")}
+            onChange={(value) => onChange(value ?? "")}
+            options={{
+              automaticLayout: true,
+              fontFamily: "var(--font-mono)",
+              fontLigatures: true,
+              fontSize: 14,
+              lineDecorationsWidth: 12,
+              lineNumbersMinChars: 3,
+              minimap: { enabled: true },
+              padding: { top: 18, bottom: 18 },
+              readOnly: !activeFile?.isEditable,
+              renderWhitespace: "selection",
+              scrollBeyondLastLine: false,
+              smoothScrolling: true,
+              tabSize: 4,
+            }}
+            path={activeFile?.path}
+            theme="agent-tutor-dark"
+            value={activeFile?.content ?? ""}
+          />
+        </TabsContent>
+      </Tabs>
+    </section>
   );
 }

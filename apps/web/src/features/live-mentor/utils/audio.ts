@@ -1,3 +1,5 @@
+let sharedAudioContext: AudioContext | null = null;
+
 export function downsampleBuffer(
   buffer: Float32Array,
   inputSampleRate: number,
@@ -20,11 +22,11 @@ export function downsampleBuffer(
     let count = 0;
 
     for (
-      let i = offsetBuffer;
-      i < nextOffsetBuffer && i < buffer.length;
-      i += 1
+      let index = offsetBuffer;
+      index < nextOffsetBuffer && index < buffer.length;
+      index += 1
     ) {
-      accum += buffer[i] ?? 0;
+      accum += buffer[index] ?? 0;
       count += 1;
     }
 
@@ -56,9 +58,15 @@ export function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-export async function playAudioChunk(
-  base64: string,
-): Promise<AudioBufferSourceNode | null> {
+const getAudioContext = async () => {
+  if (sharedAudioContext) {
+    if (sharedAudioContext.state === "suspended") {
+      await sharedAudioContext.resume();
+    }
+
+    return sharedAudioContext;
+  }
+
   const AudioContextCtor =
     window.AudioContext ||
     (window as typeof window & { webkitAudioContext?: typeof AudioContext })
@@ -68,7 +76,18 @@ export async function playAudioChunk(
     return null;
   }
 
-  const audioContext = new AudioContextCtor({ sampleRate: 24000 });
+  sharedAudioContext = new AudioContextCtor({ sampleRate: 24000 });
+  return sharedAudioContext;
+};
+
+export async function playAudioChunk(
+  base64: string,
+): Promise<AudioBufferSourceNode | null> {
+  const audioContext = await getAudioContext();
+  if (!audioContext) {
+    return null;
+  }
+
   const binaryString = atob(base64);
   const bytes = new Uint8Array(binaryString.length);
 
