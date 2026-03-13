@@ -2,18 +2,25 @@
 
 ## Scope
 
-Development guides for the app surfaces in this repo.
+Run the hackathon stack locally.
 
 ## Guides
 
+- `api.md`
 - `web.md`
 - `agent-live.md`
 
-## Conventions
+## Local Split
 
-1. Root commands should go through `turbo`.
-2. App/package commands should use direct tools such as `next`, `tsx`, `eslint`, `tsc`, `vitest`, `wrangler`, and `gcloud`.
-3. App-local env examples live under each app:
-   - `apps/web/.dev.vars.example`
-   - `apps/agent-live/.env.example`
-4. Root `.env.example` is the workspace aggregate view only.
+1. `pnpm dev` runs `apps/api` and `apps/web`.
+2. `pnpm dev:agent-live` runs the Gemini Live backend separately.
+3. The coding workspace is intentionally disposable:
+   - a fresh sandbox is created on `/app`
+   - reload resets the lesson workspace
+
+## Env Files
+
+- `apps/api/.dev.vars.example`
+- `apps/web/.dev.vars.example`
+- `apps/agent-live/.env.example`
+- root `/.env.example` is only the aggregate reference

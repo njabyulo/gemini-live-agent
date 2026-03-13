@@ -1,68 +1,65 @@
 # Agent Tutor
 
-Hackathon-native live coding mentor built for the Gemini Live Agent Challenge.
+Hackathon-native Python learning workspace built for the Gemini Live Agent Challenge.
 
-The project proves one loop:
+## Product Loop
 
-- the learner stays inside a focused coding workspace
-- asks for help out loud
-- gets one grounded spoken hint from Gemini Live
-- reruns tests and sees visible progress
-- lands on a short readiness summary
-
-## Demo Shape
-
-The demo UI is a minimal, Codespaces-inspired lesson workspace:
-
-- top: lesson objective and live session state
-- left: compact explorer with 2-4 files
-- center: Monaco editor with one active file
-- bottom: terminal and test output area
-- right: live mentor panel with transcript and controls
-
-The workspace is intentionally deterministic. The judged experience is the live mentor loop, not a hosted IDE platform.
+1. Judge lands on `gemini-live.njabulomajozi.com`
+2. Logs in with a pre-created account
+3. Enters `/app`
+4. Edits `main.py` in Monaco
+5. Runs a real Python command in the terminal
+6. Asks the tutor for help by voice
+7. Gets one grounded spoken hint tied to current code and runtime output
 
 ## Architecture
 
-- `apps/web`: public frontend, intended for Cloudflare hosting
-- `apps/agent-live`: the real live-agent runtime on Google Cloud Run
-- `packages/shared`: shared consts, message contracts, and helpers
-- `infra/apps/web`: Cloudflare deployment config
-- `infra/apps/agent-live`: Cloud Run deployment config
+- `apps/web`
+  - Next.js frontend
+  - Cloudflare-hosted
+  - login screen at `/`
+  - coding workspace at `/app`
+- `apps/api`
+  - Hono on Cloudflare Workers
+  - Better Auth + D1
+  - Cloudflare Sandbox-backed lesson execution
+- `apps/agent-live`
+  - real Gemini Live runtime
+  - `@google/genai`
+  - Google Cloud Run
+- `packages/shared`
+  - shared contracts and constants
 
-## Stack
+## Current Hackathon Scope
 
-- `pnpm`
-- `turbo`
-- `Next.js`
-- `Monaco Editor`
-- `zustand`
-- `@google/genai`
-- Gemini Live API
-- WebSocket transport
-- Cloud Run
-- Cloudflare
+- Python only
+- one disposable lesson workspace
+- no persistence across reloads
+- real command execution
+- live voice tutoring grounded on:
+  - current `main.py`
+  - last command
+  - latest stdout/stderr
 
 ## Local Development
 
-1. Copy `apps/agent-live/.env.example` to `apps/agent-live/.env`.
-2. Copy `apps/web/.dev.vars.example` to `apps/web/.dev.vars` if you want explicit frontend env setup.
-3. Set `GEMINI_API_KEY` in `apps/agent-live/.env`.
-4. Run `pnpm install`.
-5. Run `pnpm dev`.
+1. `pnpm install`
+2. Copy:
+   - `apps/api/.dev.vars.example` -> `apps/api/.dev.vars`
+   - `apps/web/.dev.vars.example` -> `apps/web/.dev.vars`
+   - `apps/agent-live/.env.example` -> `apps/agent-live/.env`
+3. Fill in the required secrets
+4. Run:
+   - `pnpm dev`
+   - `pnpm dev:agent-live`
 
-## Scripts
+## Main Scripts
 
 - `pnpm dev`
-- `pnpm build`
+- `pnpm dev:agent-live`
 - `pnpm lint`
 - `pnpm test`
-- `pnpm release:dev:web`
-- `pnpm release:dev:api`
-
-## Submission Notes
-
-- Gemini is used through `@google/genai`.
-- The live agent itself runs in `apps/agent-live` on Cloud Run.
-- `apps/web` is designed to be hosted on Cloudflare at `gemini-live.njabulomajozi.com`.
-- The frontend and backend hosting split is intentional and explicit.
+- `pnpm build`
+- `pnpm release:web`
+- `pnpm release:api`
+- `pnpm release:agent-live`

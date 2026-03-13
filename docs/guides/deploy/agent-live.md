@@ -4,24 +4,14 @@
 
 Deploy `apps/agent-live` to Google Cloud Run.
 
-## Prerequisites
-
-1. `pnpm install`
-2. Authenticated `gcloud` CLI
-3. Target Google Cloud project selected
-4. Required env vars and secrets prepared for Cloud Run
-
 ## Infra Source of Truth
 
-- Cloud Run manifest: `infra/apps/agent-live/cloudrun.yaml`
-- App package scripts:
-  - `pnpm release:dev:api`
-  - `pnpm release:api`
+- `infra/apps/agent-live/cloudrun.yaml`
 
-## Required Environment Variables
+## Required Environment
 
 1. `GEMINI_API_KEY`
-2. `PORT` (`8080` in Cloud Run config)
+2. `PORT`
 3. `GEMINI_LIVE_MODEL`
 4. `GOOGLE_CLOUD_PROJECT`
 5. `GOOGLE_CLOUD_REGION`
@@ -36,30 +26,16 @@ Deploy `apps/agent-live` to Google Cloud Run.
 
 ### Dev
 
-1. `pnpm release:dev:api`
+`pnpm release:dev:agent-live`
 
 ### Production
 
-1. `pnpm release:api`
+`pnpm release:agent-live`
 
 ## Post-Deploy Checks
 
-1. Cloud Run service becomes healthy.
-2. `GET /health` returns `200`.
-3. WebSocket connections to `/live` succeed.
-4. Gemini Live session creation works with the configured model.
-5. Tool calls for lesson/test context continue to function.
-
-## Runtime Ownership
-
-This app must remain the real live-agent runtime. It owns:
-
-1. WebSocket/live session handling
-2. Gemini Live connection
-3. Tool execution
-4. Tutor orchestration
-
-## Rollback
-
-1. Re-deploy the previous known-good Cloud Run revision.
-2. Re-check `GEMINI_API_KEY`, model configuration, and region/project settings if health checks pass but live session startup fails.
+1. `GET /health` returns `200`
+2. WebSocket upgrade on `/live` works
+3. Tutor responses reference current source code and runtime output
+4. Audio in/out and transcripts work end to end
+5. The architecture diagram and demo clearly show Cloud Run as the live-agent host
