@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, KeyRound, LoaderCircle, Sparkles } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
@@ -28,14 +28,6 @@ export function LandingScreen() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: session, isPending } = useSession();
-
-  const helperLabel = useMemo(() => {
-    if (session?.user) {
-      return `Signed in as ${session.user.email}`;
-    }
-
-    return "Judges will receive a pre-created account. No sign up flow is needed.";
-  }, [session]);
 
   useEffect(() => {
     if (!session?.user) {
@@ -208,10 +200,14 @@ export function LandingScreen() {
               </Card>
             ) : null}
 
-            <Separator className="mt-8 bg-[rgba(20,31,24,0.1)]" />
-            <div className="mt-4 text-center text-[13px] leading-5 text-[#5a6e62]">
-              {isPending ? "Checking session…" : helperLabel}
-            </div>
+            {isPending || session?.user ? (
+              <>
+                <Separator className="mt-8 bg-[rgba(20,31,24,0.1)]" />
+                <div className="mt-4 text-center text-[13px] leading-5 text-[#5a6e62]">
+                  {isPending ? "Checking session…" : `Signed in as ${session.user.email}`}
+                </div>
+              </>
+            ) : null}
           </CardContent>
         </Card>
       </div>
