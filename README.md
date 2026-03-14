@@ -1,58 +1,67 @@
 # Agent Tutor
 
-Hackathon-native Python learning workspace built for the Gemini Live Agent Challenge.
+`agent-tutor` is an AI-native Python learning workspace built for the Gemini Live Agent Challenge.
 
-## Product Loop
+It combines:
+- a browser code editor with Monaco
+- a real terminal powered by xterm.js
+- disposable Python lesson workspaces running on Cloudflare Sandbox
+- a live Gemini tutor hosted on Google Cloud Run
 
-1. Judge lands on `gemini-live.njabulomajozi.com`
-2. Logs in with a pre-created account
-3. Enters `/app`
-4. Edits `main.py` in Monaco
-5. Runs a real Python command in the terminal
-6. Asks the tutor for help by voice
-7. Gets one grounded spoken hint tied to current code and runtime output
+The core product loop is:
+1. open the lesson workspace
+2. inspect or edit the starter code
+3. run the program in the terminal
+4. ask the tutor for help by voice or text
+5. get a grounded response based on the lesson, code, runtime output, and workspace screenshot
 
-## Architecture
+## Apps
 
 - `apps/web`
   - Next.js frontend
-  - Cloudflare-hosted
-  - login screen at `/`
-  - coding workspace at `/app`
+  - login at `/`
+  - lesson workspace at `/app`
 - `apps/api`
-  - Hono on Cloudflare Workers
+  - Hono API on Cloudflare Workers
   - Better Auth + D1
-  - Cloudflare Sandbox-backed lesson execution
+  - lesson bootstrap and sandbox-backed execution
 - `apps/agent-live`
-  - real Gemini Live runtime
-  - `@google/genai`
-  - Google Cloud Run
+  - live agent runtime on Google Cloud Run
+  - Gemini Live integration through `@google/genai`
 - `packages/shared`
-  - shared contracts and constants
+  - shared lesson, live-session, and auth contracts
+  - shared course constants and lookup helpers
 
-## Current Hackathon Scope
+## Current Scope
 
-- Python only
-- one disposable lesson workspace
-- no persistence across reloads
-- real command execution
-- live voice tutoring grounded on:
-  - current `main.py`
-  - last command
+- Python-focused lessons
+- disposable workspaces
+- live tutor with voice, transcript, and multimodal grounding
+- lesson-aware guidance tied to:
+  - active lesson content
+  - current source code
+  - latest command
   - latest stdout/stderr
+  - workspace screenshot captured at help time
 
 ## Local Development
 
-1. `pnpm install`
-2. Copy:
-   - `apps/api/.dev.vars.example` -> `apps/api/.dev.vars`
-   - `apps/web/.dev.vars.example` -> `apps/web/.dev.vars`
-   - `apps/agent-live/.env.example` -> `apps/agent-live/.env`
-3. Fill in the required secrets
-4. Run:
+1. Install dependencies:
+   - `pnpm install`
+2. Create local env files:
+   - `apps/api/.dev.vars`
+   - `apps/web/.dev.vars`
+   - `apps/agent-live/.env`
+3. Fill in the required secrets.
+4. Start the full stack:
    - `pnpm dev`
 
-## Main Scripts
+This runs:
+- `apps/web`
+- `apps/api`
+- `apps/agent-live`
+
+## Common Commands
 
 - `pnpm dev`
 - `pnpm lint`
@@ -61,3 +70,20 @@ Hackathon-native Python learning workspace built for the Gemini Live Agent Chall
 - `pnpm release:web`
 - `pnpm release:api`
 - `pnpm release:agent-live`
+
+## Challenge Docs
+
+Submission-facing docs live in `docs/challenge`.
+
+- [Architecture diagram and runtime flow](docs/challenge/architechure.md)
+- [Google challenge integrations](docs/challenge/google-integration.md)
+- [Third-party integration disclosure](docs/challenge/3rd-party-integration.md)
+
+These docs are intended to support the Gemini Live Agent Challenge submission directly.
+
+## Additional Docs
+
+- local development:
+  - `docs/guides/dev`
+- deployment:
+  - `docs/guides/deploy`
