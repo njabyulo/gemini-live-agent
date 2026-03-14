@@ -86,9 +86,6 @@ export function LessonPanel({
     (status) => status === "completed",
   ).length;
   const totalCount = Object.keys(topicStatusById).length;
-  const progressPercent = totalCount
-    ? Math.round((completedCount / totalCount) * 100)
-    : 0;
   const isLoadedSelection = Boolean(
     selectedLesson?.lessonId && loadedTopicId === selectedLesson.lessonId,
   );
@@ -96,30 +93,20 @@ export function LessonPanel({
   return (
     <section className="flex h-full min-h-0 flex-col overflow-hidden">
       <div className="border-b border-[rgba(20,31,24,0.08)] px-5 py-4">
-        <p className="workspace-eyebrow">Learning rail</p>
-        <div className="mt-1 flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-[1.45rem] leading-[1.08] font-semibold tracking-[-0.04em] text-[#16211b]">
               {course.title}
             </h2>
             <p className="mt-1 text-sm leading-6 text-[#5f7468]">
-              {completedCount} of {totalCount} topics completed
+              {totalCount} guided topics
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          {completedCount > 0 ? (
             <Badge className="rounded-full border border-[#c9d9ce] bg-[#f3f7f4] px-3 py-1 text-[11px] text-[#486055] shadow-none">
-              {completedCount}/{totalCount}
+              {completedCount} complete
             </Badge>
-            <Badge className="rounded-full border border-[#c9d9ce] bg-[#f3f7f4] px-3 py-1 text-[11px] text-[#486055] shadow-none">
-              {progressPercent}%
-            </Badge>
-          </div>
-        </div>
-        <div className="mt-3 h-2 rounded-full bg-[#e5ece6]">
-          <div
-            className="h-full rounded-full bg-[#2f735f]"
-            style={{ width: `${progressPercent}%` }}
-          />
+          ) : null}
         </div>
       </div>
 

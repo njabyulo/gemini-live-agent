@@ -2,40 +2,32 @@
 
 import { FitAddon } from "@xterm/addon-fit";
 import { Terminal } from "@xterm/xterm";
-import { FlaskConical, RotateCcw, TerminalSquare } from "lucide-react";
+import { TerminalSquare } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-import type {
-  IRuntimeSnapshot,
-} from "@agent-tutor/shared/types";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { Separator } from "~/components/ui/separator";
+import { cn } from "~/lib/utils";
 import {
   DEFAULT_PROGRAM_INPUT,
   PYTHON_COMMAND_PREFIX,
 } from "../utils/terminal";
 
 export function TerminalSurface({
-  ambientCue,
+  className,
+  embedded = false,
   isRunningCommand,
   onProgramInputChange,
-  onReset,
   onRunProgram,
-  onRunTests,
   programInput,
-  runtime,
   terminalBuffer,
 }: {
-  ambientCue: string;
+  className?: string;
+  embedded?: boolean;
   isRunningCommand: boolean;
   onProgramInputChange: (value: string) => void;
-  onReset: () => void;
   onRunProgram: () => void;
-  onRunTests: () => void;
   programInput: string;
-  runtime: IRuntimeSnapshot;
   terminalBuffer: string;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -101,50 +93,16 @@ export function TerminalSurface({
   }, [terminalBuffer]);
 
   return (
-    <section className="panel-surface flex min-h-0 flex-col overflow-hidden rounded-[24px] border border-[rgba(20,31,24,0.1)]">
-      <div className="flex flex-col gap-3 border-b border-[rgba(20,31,24,0.1)] bg-[#f7fbf7] px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="rounded-2xl border border-[#c4d8cd] bg-[#e5edf0] p-2 text-[#466b7a]">
-            <TerminalSquare className="h-4 w-4" />
-          </div>
-          <div>
-            <p className="workspace-eyebrow">Terminal</p>
-            <p className="text-[0.96rem] leading-6 text-[#233328]">
-              Run the program, inspect the output, then tighten the fix.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Separator
-            orientation="vertical"
-            className="hidden h-8 bg-[rgba(20,31,24,0.1)] sm:block"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="lg"
-            onClick={onRunTests}
-            disabled={isRunningCommand}
-            className="h-10 rounded-full border-[#c6d9ce] bg-[#edf4ef] px-4 text-[0.92rem] text-[#27463a] hover:bg-[#e3efe7]"
-          >
-            <FlaskConical className="mr-2 h-4 w-4" />
-            Run tests
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="lg"
-            onClick={onReset}
-            className="h-10 rounded-full border-[rgba(20,31,24,0.1)] bg-[#f8fbf7] px-4 text-[0.92rem] text-[#385043] hover:bg-[#eef4ef]"
-          >
-            <RotateCcw className="mr-2 h-4 w-4" />
-            Reset lesson
-          </Button>
-        </div>
-      </div>
-
-      <div className="border-b border-[rgba(20,31,24,0.1)] bg-[#edf4ef] px-4 py-3">
+    <section
+      className={cn(
+        "flex min-h-0 flex-col overflow-hidden",
+        embedded
+          ? "codebase-terminal-dock border-t border-[rgba(20,31,24,0.08)]"
+          : "panel-surface rounded-[24px] border border-[rgba(20,31,24,0.1)]",
+        className,
+      )}
+    >
+      <div className="border-b border-[rgba(20,31,24,0.08)] bg-[#edf4ef] px-4 py-3">
         <form
           className="grid gap-3 lg:grid-cols-[max-content_minmax(0,1fr)_auto]"
           onSubmit={(event) => {
@@ -153,7 +111,7 @@ export function TerminalSurface({
           }}
         >
           <div className="flex min-h-11 items-center rounded-full border border-[rgba(20,31,24,0.1)] bg-[#f8fbf7] px-4 font-mono text-[0.94rem] text-[#1d2a21] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]">
-            <span className="mr-3 text-[#5f7468]">$</span>
+            <TerminalSquare className="mr-3 h-4 w-4 text-[#5f7468]" />
             <span>{PYTHON_COMMAND_PREFIX}</span>
           </div>
 
@@ -179,16 +137,6 @@ export function TerminalSurface({
           </div>
         </form>
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-[0.79rem] leading-5 text-[#52685b]">
-          <p className="max-w-[52rem]">
-            {ambientCue}
-          </p>
-          {runtime.command ? (
-            <Badge className="rounded-full border border-[#c6d9ce] bg-[#edf4ef] px-3 py-1 text-[11px] text-[#45636e] shadow-none">
-              Last command: {runtime.command}
-            </Badge>
-          ) : null}
-        </div>
       </div>
 
       <div className="terminal-surface min-h-0 flex-1 bg-[#0c111b] p-3">

@@ -4,7 +4,6 @@ import {
   ChevronDown,
   LogOut,
   RefreshCcw,
-  BookOpenCheck,
   UserRound,
 } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
@@ -22,14 +21,7 @@ import {
   Avatar,
   AvatarFallback,
 } from "~/components/ui/avatar";
-import { Badge } from "~/components/ui/badge";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { Skeleton } from "~/components/ui/skeleton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
 import { signOut } from "~/features/auth/services/auth-client";
 
 import { useLiveMentorWorkspace } from "../hooks/use-live-mentor-workspace";
@@ -86,25 +78,6 @@ const buildSuggestedPrompts = (
   return ["What should I look for first?", "How should I approach this topic?"];
 };
 
-const buildAmbientCue = (workspace: ReturnType<typeof useLiveMentorWorkspace>) => {
-  if (workspace.runtime.command === PYTEST_COMMAND && /passed\b/u.test(workspace.runtime.stdout)) {
-    return "Green result. Ask the tutor for a quick recap if you want the concept behind the fix.";
-  }
-
-  if (workspace.runtime.stderr.trim()) {
-    return "The tutor noticed a runtime issue. A short hint is ready when you ask.";
-  }
-
-  if (workspace.runtime.command) {
-    return "The tutor is grounded on your last command and output. Ask for one precise next step.";
-  }
-
-  return (
-    workspace.loadedLesson?.summary ??
-    "Run the program once. The tutor gets sharper after it sees real output."
-  );
-};
-
 export function LiveMentorWorkspace() {
   const router = useRouter();
   const workspace = useLiveMentorWorkspace();
@@ -121,9 +94,9 @@ export function LiveMentorWorkspace() {
   });
   const tutorNote = buildTutorNote(workspace);
   const suggestedPrompts = buildSuggestedPrompts(workspace);
-  const ambientCue = buildAmbientCue(workspace);
   const shouldExpandTerminal =
     workspace.isRunningCommand ||
+    workspace.runtime.command.trim().length > 0 ||
     workspace.runtime.command === PYTEST_COMMAND ||
     workspace.runtime.stderr.trim().length > 0;
 
@@ -135,27 +108,17 @@ export function LiveMentorWorkspace() {
 
   if (workspace.isSessionPending || workspace.isBootstrapping) {
     return (
-      <main className="min-h-screen bg-transparent px-3 py-3 text-[#16211b] sm:px-4 sm:py-4">
-        <div className="workspace-shell mx-auto min-h-[calc(100vh-1.5rem)] max-w-[1780px] overflow-hidden rounded-[30px] border border-[rgba(20,31,24,0.14)] p-4">
-          <div className="rounded-[28px] border border-black/8 bg-[#0b0f0d] p-5">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-              <div className="space-y-3">
-                <Skeleton className="h-3 w-28 bg-white/14" />
-                <Skeleton className="h-22 w-[25rem] max-w-full bg-white/18" />
-                <Skeleton className="h-5 w-[29rem] max-w-full bg-white/12" />
-              </div>
-              <div className="flex flex-wrap items-center gap-3 xl:justify-end">
-                <Skeleton className="h-14 w-64 rounded-full bg-white/12" />
-                <Skeleton className="h-9 w-32 rounded-full bg-white/12" />
-                <Skeleton className="h-8 w-64 rounded-full bg-white/12" />
-                <Skeleton className="h-14 w-72 rounded-full bg-white/14" />
-              </div>
+      <main className="h-[100dvh] overflow-hidden bg-transparent px-3 py-3 text-[#16211b] sm:px-4 sm:py-4">
+        <div className="workspace-shell mx-auto flex h-full max-w-[1780px] flex-col overflow-hidden rounded-[30px] border border-[rgba(20,31,24,0.14)] p-4">
+          <div className="rounded-[28px] border border-black/8 bg-[#0b0f0d] px-5 py-4">
+            <div className="flex items-center justify-end">
+              <Skeleton className="h-14 w-72 rounded-full bg-white/14" />
             </div>
           </div>
 
-          <div className="mt-4 grid min-h-[calc(100vh-9rem)] grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
-            <section className="grid min-h-0 gap-4 grid-rows-[minmax(0,1fr)_160px]">
-                <div className="panel-surface rounded-[24px] border border-[rgba(20,31,24,0.1)] overflow-hidden">
+          <div className="mt-4 grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+            <section className="min-h-0">
+                <div className="codebase-shell h-full rounded-[24px] border border-[rgba(20,31,24,0.1)] overflow-hidden">
                   <div className="flex items-center gap-3 border-b border-[rgba(20,31,24,0.1)] px-4 py-3">
                     <Skeleton className="h-10 w-10 rounded-2xl bg-[#dfe9e1]" />
                     <div className="space-y-2">
@@ -172,10 +135,7 @@ export function LiveMentorWorkspace() {
                     <Skeleton className="h-3 w-44 bg-[#dfe9e1]" />
                     <Skeleton className="h-7 w-20 rounded-full bg-[#dfe9e1]" />
                   </div>
-                  <Skeleton className="h-[calc(100%-8.9rem)] min-h-[24rem] w-full rounded-none bg-[#0e131d]" />
-                </div>
-
-                <div className="panel-surface rounded-[24px] border border-[rgba(20,31,24,0.1)] overflow-hidden">
+                  <Skeleton className="min-h-[20rem] flex-1 w-full rounded-none bg-[#0e131d]" />
                   <div className="flex items-center justify-between gap-3 border-b border-[rgba(20,31,24,0.1)] px-4 py-3">
                     <div className="flex items-center gap-3">
                       <Skeleton className="h-10 w-10 rounded-2xl bg-[#dfe9e1]" />
@@ -231,42 +191,10 @@ export function LiveMentorWorkspace() {
   }
 
   return (
-    <main className="min-h-screen bg-transparent px-3 py-3 text-[#16211b] sm:px-4 sm:py-4">
-      <div className="workspace-shell mx-auto min-h-[calc(100vh-1.5rem)] max-w-[1780px] overflow-hidden rounded-[30px] border border-[rgba(20,31,24,0.14)]">
-        <header className="flex flex-col gap-4 border-b border-black/10 bg-[#0b0f0d] px-5 py-4 xl:flex-row xl:items-start xl:justify-between">
-          <div className="min-w-0">
-            <p className="workspace-eyebrow">Agent tutor</p>
-            <h1 className="workspace-heading max-w-[13ch] text-[clamp(2rem,2.8vw,3rem)] leading-[0.98] text-white">
-              Python foundations workspace
-            </h1>
-            <p className="mt-2 max-w-2xl text-[0.95rem] leading-6 text-[#b2c3b7]">
-              {ambientCue}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2.5 xl:max-w-[54rem] xl:justify-end">
-            {workspace.loadedLesson ? (
-              <Badge className="hidden rounded-full border border-[#84d7ae]/18 bg-[#14221d] px-3.5 py-2 text-[0.78rem] font-medium text-[#d5fff0] shadow-none lg:inline-flex">
-                <BookOpenCheck className="mr-2 h-3.5 w-3.5" />
-                {workspace.loadedLesson.lessonTitle}
-              </Badge>
-            ) : null}
-            <Badge className="hidden rounded-full border border-[#84d7ae]/18 bg-[#14221d] px-3.5 py-2 text-[0.78rem] font-medium text-[#d5fff0] shadow-none lg:inline-flex">
-              {voice.isSessionLive ? `Tutor ${voice.sessionPhase}` : "Tutor ready"}
-            </Badge>
-            <Tooltip>
-              <TooltipTrigger>
-                <span className="inline-flex">
-                  <Badge className="rounded-full border border-[#d5a443]/22 bg-[#f7ecd1] px-3 py-1.5 text-[0.73rem] font-medium text-[#78541d]">
-                    Reload resets this lesson workspace
-                  </Badge>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                This workspace is disposable for the hackathon demo.
-              </TooltipContent>
-            </Tooltip>
-
+    <main className="h-[100dvh] overflow-hidden bg-transparent px-3 py-3 text-[#16211b] sm:px-4 sm:py-4">
+      <div className="workspace-shell mx-auto flex h-full max-w-[1780px] flex-col overflow-hidden rounded-[30px] border border-[rgba(20,31,24,0.14)]">
+        <header className="flex items-center justify-end border-b border-black/10 bg-[#0b0f0d] px-5 py-4">
+          <div className="flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -324,47 +252,34 @@ export function LiveMentorWorkspace() {
           </div>
         </header>
 
-        <div className="grid min-h-[calc(100vh-7rem)] grid-cols-1 gap-4 p-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 p-4 xl:grid-cols-[minmax(0,1fr)_420px]">
           <section
             ref={workspaceRegionRef}
-            className="grid min-h-0 gap-4 lg:min-h-[calc(100vh-9rem)]"
+            className="min-h-0"
           >
-            <ScrollArea className="min-h-0 h-full">
-              <div
-                className={`grid min-h-full gap-4 pr-3 ${
-                  shouldExpandTerminal
-                    ? "grid-rows-[minmax(0,1fr)_220px]"
-                    : "grid-rows-[minmax(0,1fr)_160px]"
-                }`}
-              >
+              <div className="codebase-shell flex h-full min-h-0 flex-col overflow-hidden rounded-[26px] border border-[rgba(20,31,24,0.1)]">
                 <CodeEditorSurface
                   activeFile={workspace.activeFile}
+                  className="min-h-0 flex-[1_1_auto]"
+                  embedded
                   files={workspace.files}
-                  lessonTitle={
-                    workspace.loadedLesson?.lessonTitle ??
-                    "Python Foundations"
-                  }
                   onChange={workspace.updateFileContent}
                   onSelectFile={workspace.updateActiveFile}
-                  taskSummary={workspace.activeTaskSummary}
                 />
 
                 <TerminalSurface
-                  ambientCue={ambientCue}
+                  className={shouldExpandTerminal ? "h-[260px] shrink-0" : "h-[190px] shrink-0"}
+                  embedded
                   isRunningCommand={workspace.isRunningCommand}
                   onProgramInputChange={workspace.updateProgramInput}
-                  onReset={workspace.resetLesson}
                   onRunProgram={workspace.runProgram}
-                  onRunTests={workspace.runTests}
                   programInput={workspace.programInput}
-                  runtime={workspace.runtime}
                   terminalBuffer={workspace.terminalBuffer}
                 />
               </div>
-            </ScrollArea>
           </section>
 
-          <div className="min-h-0 lg:h-[calc(100vh-9rem)]">
+          <div className="min-h-0">
             <LearningRail
               activeLesson={workspace.loadedLesson}
               activeRailTab={workspace.activeRailTab}

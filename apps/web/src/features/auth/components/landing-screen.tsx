@@ -204,7 +204,9 @@ export function LandingScreen() {
               <>
                 <Separator className="mt-8 bg-[rgba(20,31,24,0.1)]" />
                 <div className="mt-4 text-center text-[13px] leading-5 text-[#5a6e62]">
-                  {isPending ? "Checking session…" : `Signed in as ${session.user.email}`}
+                  {isPending
+                    ? "Checking session…"
+                    : `Signed in as ${session?.user?.email ?? ""}`}
                 </div>
               </>
             ) : null}
