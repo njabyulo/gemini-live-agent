@@ -72,8 +72,6 @@ const renderTranscriptBody = (text: string) => {
 
 export function VoiceAgentPanel({
   activeLesson,
-  inputLevel,
-  isCapturingAudio,
   isSessionLive,
   onSuggestedPrompt,
   sessionPhase,
@@ -82,8 +80,6 @@ export function VoiceAgentPanel({
   transcripts,
 }: {
   activeLesson: ILessonContext | null;
-  inputLevel: number;
-  isCapturingAudio: boolean;
   isSessionLive: boolean;
   onSuggestedPrompt: (prompt: string) => void;
   sessionPhase: string;
@@ -92,9 +88,7 @@ export function VoiceAgentPanel({
   transcripts: ITranscriptMessage[];
 }) {
   const transcriptAreaRef = useRef<HTMLDivElement | null>(null);
-  const isVoiceActive = isCapturingAudio && inputLevel > 0.02;
-  const isTransportActive = isSessionLive || isCapturingAudio;
-  const transportPhaseLabel = isTransportActive ? sessionPhase : "Tutor ready";
+  const statusLabel = isSessionLive ? sessionPhase : "Tutor ready";
 
   useEffect(() => {
     const container =
@@ -123,7 +117,7 @@ export function VoiceAgentPanel({
                 <div>
                   <p className="workspace-eyebrow">System tutor</p>
                   <h2 className="mt-1 text-[1.4rem] leading-[1.08] font-semibold tracking-[-0.035em] text-[#16211b]">
-                    Gemini live copilot
+                    Agent tutor
                   </h2>
                   <p className="mt-2 text-[0.84rem] leading-6 text-[#5f7468]">
                     {activeLesson
@@ -132,7 +126,7 @@ export function VoiceAgentPanel({
                   </p>
                 </div>
                 <Badge className="rounded-full border border-[#b8d7c4] bg-[#dff1e5] px-3 py-1.5 text-[10.5px] uppercase tracking-[0.18em] text-[#255845] shadow-none">
-                  {transportPhaseLabel}
+                  {statusLabel}
                 </Badge>
               </div>
 
@@ -211,36 +205,6 @@ export function VoiceAgentPanel({
             </div>
           </div>
         </ScrollArea>
-        <div className="voice-transport-shell pointer-events-none sticky bottom-0 mt-auto pt-5">
-          <div className="voice-transport-backdrop pointer-events-none absolute inset-x-0 bottom-0 h-28" />
-          {isTransportActive ? (
-            <div className="voice-transport-layout voice-transport-layout-active relative">
-              <div
-                aria-hidden="true"
-                className="voice-transport-pill voice-transport-pill-active"
-              >
-                <span
-                  data-active={isVoiceActive}
-                  className="voice-meter voice-transport-meter"
-                >
-                  {Array.from({ length: 30 }).map((_, index) => (
-                    <span
-                      key={`voice-bar-${index}`}
-                      className="voice-meter-bar"
-                      style={{
-                        animationDelay: `${index * 0.035}s`,
-                        ["--voice-level" as string]: `${Math.max(
-                          inputLevel,
-                          0.08,
-                        )}`,
-                      }}
-                    />
-                  ))}
-                </span>
-              </div>
-            </div>
-          ) : null}
-        </div>
       </div>
     </section>
   );

@@ -60,6 +60,7 @@ export function LearningRail({
   tutorNote: string;
 }) {
   const isTransportActive = isSessionLive || isCapturingAudio;
+  const isSoundActive = isCapturingAudio && inputLevel > 0.02;
 
   return (
     <aside className="panel-surface flex h-full min-h-0 flex-col overflow-hidden rounded-[24px] border border-[rgba(20,31,24,0.1)]">
@@ -91,7 +92,9 @@ export function LearningRail({
             variant="outline"
             aria-label={isTransportActive ? "End voice session" : "Start voice session"}
             onClick={isTransportActive ? onDisconnect : onConnect}
-            className={`h-12 w-12 shrink-0 rounded-full border transition ${
+            data-listening={isSoundActive}
+            data-active={isTransportActive}
+            className={`agent-tutor-mic-control h-12 w-12 shrink-0 rounded-full border transition ${
               isTransportActive
                 ? "border-[#1f2c38] bg-[#162028] text-[#edf4ff] hover:bg-[#162028]"
                 : "border-[rgba(20,31,24,0.08)] bg-[#f7fbf7] text-[#486055] hover:bg-[#edf3ee]"
@@ -123,8 +126,6 @@ export function LearningRail({
         ) : (
           <VoiceAgentPanel
             activeLesson={activeLesson}
-            inputLevel={inputLevel}
-            isCapturingAudio={isCapturingAudio}
             isSessionLive={isSessionLive}
             onSuggestedPrompt={onSuggestedPrompt}
             sessionPhase={sessionPhase}
