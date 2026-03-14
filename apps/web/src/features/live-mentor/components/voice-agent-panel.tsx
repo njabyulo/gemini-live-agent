@@ -3,6 +3,7 @@
 import { Mic, MicOff } from "lucide-react";
 import { Fragment, useEffect, useRef } from "react";
 
+import type { ILessonContext } from "@agent-tutor/shared/types";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -71,6 +72,7 @@ const renderTranscriptBody = (text: string) => {
 };
 
 export function VoiceAgentPanel({
+  activeLesson,
   inputLevel,
   isCapturingAudio,
   isSessionLive,
@@ -82,6 +84,7 @@ export function VoiceAgentPanel({
   tutorNote,
   transcripts,
 }: {
+  activeLesson: ILessonContext | null;
   inputLevel: number;
   isCapturingAudio: boolean;
   isSessionLive: boolean;
@@ -123,49 +126,56 @@ export function VoiceAgentPanel({
   };
 
   return (
-    <aside className="voice-rail flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border border-white/8 p-5">
-      <div className="mb-4 border-b border-white/8 pb-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="workspace-eyebrow">System tutor</p>
-            <h2 className="mt-1 text-[1.5rem] leading-[1.08] font-semibold tracking-[-0.04em] text-[#16211b]">
-              Gemini live copilot
-            </h2>
-          </div>
-          <Badge className="rounded-full border border-[#b8d7c4] bg-[#dff1e5] px-3 py-1.5 text-[11px] uppercase tracking-[0.2em] text-[#255845] shadow-none">
-            {isSessionLive ? sessionPhase : "Tutor ready"}
-          </Badge>
-        </div>
+    <section className="voice-rail flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] p-5">
+      <div ref={transcriptAreaRef} className="min-h-0 flex-1">
+        <ScrollArea className="voice-transcript-scroll min-h-0 h-full pr-1">
+          <div className="space-y-6 pb-36">
+            <div className="border-b border-white/8 pb-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="workspace-eyebrow">System tutor</p>
+                  <h2 className="mt-1 text-[1.4rem] leading-[1.08] font-semibold tracking-[-0.035em] text-[#16211b]">
+                    Gemini live copilot
+                  </h2>
+                  <p className="mt-2 text-[0.84rem] leading-6 text-[#5f7468]">
+                    {activeLesson
+                      ? `Grounded on ${activeLesson.lessonTitle}`
+                      : "Start a lesson to ground the tutor on the current task."}
+                  </p>
+                </div>
+                <Badge className="rounded-full border border-[#b8d7c4] bg-[#dff1e5] px-3 py-1.5 text-[10.5px] uppercase tracking-[0.18em] text-[#255845] shadow-none">
+                  {isSessionLive ? sessionPhase : "Tutor ready"}
+                </Badge>
+              </div>
 
-        <div className="mt-4 rounded-[22px] border border-[#b8d7c4] bg-[#eaf6ed] px-4 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#2f735f]">
-            Tutor note
-          </p>
-          <p className="mt-2 text-sm leading-6 text-[#456255]">{tutorNote}</p>
-        </div>
+              <div className="mt-4 rounded-[20px] border border-[#b8d7c4] bg-[#eef8f1] px-4 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#2f735f]">
+                  Tutor note
+                </p>
+                <p className="mt-2 text-[0.92rem] leading-6 text-[#456255]">
+                  {tutorNote}
+                </p>
+              </div>
 
-        {suggestedPrompts.length ? (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {suggestedPrompts.map((prompt) => (
-              <Button
-                key={prompt}
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => onSuggestedPrompt(prompt)}
-                className="rounded-full border-[rgba(20,31,24,0.1)] bg-[#f8fbf7] text-[#32473b] hover:bg-[#edf4ef]"
-              >
-                {prompt}
-              </Button>
-            ))}
-          </div>
-        ) : null}
-      </div>
+              {suggestedPrompts.length ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {suggestedPrompts.map((prompt) => (
+                    <Button
+                      key={prompt}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onSuggestedPrompt(prompt)}
+                      className="h-9 rounded-full border-[rgba(20,31,24,0.1)] bg-[#f8fbf7] px-3.5 text-[0.82rem] text-[#32473b] hover:bg-[#edf4ef]"
+                    >
+                      {prompt}
+                    </Button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div ref={transcriptAreaRef} className="min-h-0 flex-1">
-          <ScrollArea className="voice-transcript-scroll min-h-0 h-full pr-1">
-            <div className="space-y-8 pb-36">
+            <div className="space-y-8">
               {transcripts.length ? (
                 transcripts.map((message) => {
                   const isUser = message.role === "user";
@@ -211,8 +221,8 @@ export function VoiceAgentPanel({
                 </div>
               )}
             </div>
-          </ScrollArea>
-        </div>
+          </div>
+        </ScrollArea>
         <div className="voice-transport-shell pointer-events-none sticky bottom-0 mt-auto pt-5">
           <div className="voice-transport-backdrop pointer-events-none absolute inset-x-0 bottom-0 h-28" />
           <div
@@ -267,6 +277,6 @@ export function VoiceAgentPanel({
           </div>
         </div>
       </div>
-    </aside>
+    </section>
   );
 }

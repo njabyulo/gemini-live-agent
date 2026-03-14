@@ -4,6 +4,7 @@ import {
   ChevronDown,
   LogOut,
   RefreshCcw,
+  BookOpenCheck,
   UserRound,
 } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
@@ -22,7 +23,7 @@ import {
   AvatarFallback,
 } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
-import { Separator } from "~/components/ui/separator";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import { Skeleton } from "~/components/ui/skeleton";
 import {
   Tooltip,
@@ -36,8 +37,8 @@ import { useVoiceMentor } from "../hooks/use-voice-mentor";
 import { PYTEST_COMMAND } from "../utils/terminal";
 import { captureWorkspaceImage } from "../utils/workspace-capture";
 import { CodeEditorSurface } from "./code-editor-surface";
+import { LearningRail } from "./learning-rail";
 import { TerminalSurface } from "./terminal-surface";
-import { VoiceAgentPanel } from "./voice-agent-panel";
 
 const getInitials = (email: string) =>
   email
@@ -57,12 +58,12 @@ const buildTutorNote = (workspace: ReturnType<typeof useLiveMentorWorkspace>) =>
     return "The latest command produced an error. Read the output, then ask the tutor what changed between the expected and actual behavior.";
   }
 
-  if (workspace.runtime.command && workspace.runtime.stdout.trim() !== workspace.programInput.trim()) {
-    return "Check the final print path. The output should echo the learner input exactly, without transforming case or trimming spaces.";
+  if (workspace.runtime.command && workspace.loadedLesson?.hints[0]) {
+    return workspace.loadedLesson.hints[0];
   }
 
   return (
-    workspace.lesson?.expectedOutcome ||
+    workspace.loadedLesson?.expectedOutcome ||
     "Run the program once, inspect the output, then ask the tutor what to change."
   );
 };
@@ -79,10 +80,10 @@ const buildSuggestedPrompts = (
   }
 
   if (workspace.runtime.command) {
-    return ["Why did that uppercase?", "What line should I check?"];
+    return ["What should I change?", "What line should I inspect?"];
   }
 
-  return ["What should I look for first?"];
+  return ["What should I look for first?", "How should I approach this topic?"];
 };
 
 const buildAmbientCue = (workspace: ReturnType<typeof useLiveMentorWorkspace>) => {
@@ -98,7 +99,10 @@ const buildAmbientCue = (workspace: ReturnType<typeof useLiveMentorWorkspace>) =
     return "The tutor is grounded on your last command and output. Ask for one precise next step.";
   }
 
-  return "Run the program once. The tutor gets sharper after it sees real output.";
+  return (
+    workspace.loadedLesson?.summary ??
+    "Run the program once. The tutor gets sharper after it sees real output."
+  );
 };
 
 export function LiveMentorWorkspace() {
@@ -134,81 +138,85 @@ export function LiveMentorWorkspace() {
       <main className="min-h-screen bg-transparent px-3 py-3 text-[#16211b] sm:px-4 sm:py-4">
         <div className="workspace-shell mx-auto min-h-[calc(100vh-1.5rem)] max-w-[1780px] overflow-hidden rounded-[30px] border border-[rgba(20,31,24,0.14)] p-4">
           <div className="rounded-[28px] border border-black/8 bg-[#0b0f0d] p-5">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div className="space-y-3">
                 <Skeleton className="h-3 w-28 bg-white/14" />
-                <Skeleton className="h-10 w-80 bg-white/18" />
+                <Skeleton className="h-22 w-[25rem] max-w-full bg-white/18" />
+                <Skeleton className="h-5 w-[29rem] max-w-full bg-white/12" />
               </div>
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-8 w-56 rounded-full bg-white/14" />
-                <Skeleton className="h-12 w-44 rounded-full bg-white/14" />
+              <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+                <Skeleton className="h-14 w-64 rounded-full bg-white/12" />
+                <Skeleton className="h-9 w-32 rounded-full bg-white/12" />
+                <Skeleton className="h-8 w-64 rounded-full bg-white/12" />
+                <Skeleton className="h-14 w-72 rounded-full bg-white/14" />
               </div>
             </div>
           </div>
 
-          <div className="mt-4 grid min-h-[calc(100vh-9rem)] grid-cols-1 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(340px,1fr)]">
-            <section className="grid min-h-0 grid-rows-[minmax(0,1fr)_320px] gap-4">
-              <div className="panel-surface rounded-[24px] border border-[rgba(20,31,24,0.1)] p-4">
-                <div className="flex items-center gap-3">
-                  <Skeleton className="h-10 w-10 rounded-2xl bg-[#dfe9e1]" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-3 w-24 bg-[#dfe9e1]" />
-                    <Skeleton className="h-4 w-44 bg-[#d4e0d7]" />
-                  </div>
-                </div>
-                <Separator className="my-4 bg-[rgba(20,31,24,0.1)]" />
-                <div className="flex gap-2">
-                  <Skeleton className="h-9 w-28 rounded-t-2xl bg-[#dfe9e1]" />
-                  <Skeleton className="h-9 w-28 rounded-t-2xl bg-[#ebf2ec]" />
-                  <Skeleton className="h-9 w-28 rounded-t-2xl bg-[#ebf2ec]" />
-                </div>
-                <Separator className="my-4 bg-[rgba(20,31,24,0.1)]" />
-                <div className="flex items-center justify-between gap-3">
-                  <Skeleton className="h-3 w-44 bg-[#dfe9e1]" />
-                  <Skeleton className="h-7 w-24 rounded-full bg-[#dfe9e1]" />
-                </div>
-                <Skeleton className="mt-4 h-[calc(100%-9rem)] min-h-[22rem] w-full rounded-[18px] bg-[#0e131d]" />
-              </div>
-
-              <div className="panel-surface rounded-[24px] border border-[rgba(20,31,24,0.1)] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
+          <div className="mt-4 grid min-h-[calc(100vh-9rem)] grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
+            <section className="grid min-h-0 gap-4 grid-rows-[minmax(0,1fr)_160px]">
+                <div className="panel-surface rounded-[24px] border border-[rgba(20,31,24,0.1)] overflow-hidden">
+                  <div className="flex items-center gap-3 border-b border-[rgba(20,31,24,0.1)] px-4 py-3">
                     <Skeleton className="h-10 w-10 rounded-2xl bg-[#dfe9e1]" />
                     <div className="space-y-2">
-                      <Skeleton className="h-3 w-20 bg-[#dfe9e1]" />
+                      <Skeleton className="h-3 w-24 bg-[#dfe9e1]" />
                       <Skeleton className="h-4 w-56 bg-[#d4e0d7]" />
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Skeleton className="h-8 w-24 rounded-xl bg-[#dfe9e1]" />
-                    <Skeleton className="h-8 w-24 rounded-xl bg-[#dfe9e1]" />
+                  <div className="flex gap-2 border-b border-[rgba(20,31,24,0.1)] px-3 py-2">
+                    <Skeleton className="h-10 w-28 rounded-xl bg-[#e6eee8]" />
+                    <Skeleton className="h-10 w-32 rounded-xl bg-[#eef4ef]" />
+                    <Skeleton className="h-10 w-32 rounded-xl bg-[#eef4ef]" />
                   </div>
+                  <div className="flex items-center justify-between gap-3 border-b border-[rgba(20,31,24,0.1)] px-4 py-2.5">
+                    <Skeleton className="h-3 w-44 bg-[#dfe9e1]" />
+                    <Skeleton className="h-7 w-20 rounded-full bg-[#dfe9e1]" />
+                  </div>
+                  <Skeleton className="h-[calc(100%-8.9rem)] min-h-[24rem] w-full rounded-none bg-[#0e131d]" />
                 </div>
-                <Separator className="my-4 bg-[rgba(20,31,24,0.1)]" />
-                <div className="grid gap-3 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_auto]">
-                  <Skeleton className="h-20 rounded-[26px] bg-[#e6eee8]" />
-                  <Skeleton className="h-20 rounded-[26px] bg-[#eef4ef]" />
-                  <Skeleton className="h-20 rounded-[26px] bg-[#dfe9e1]" />
+
+                <div className="panel-surface rounded-[24px] border border-[rgba(20,31,24,0.1)] overflow-hidden">
+                  <div className="flex items-center justify-between gap-3 border-b border-[rgba(20,31,24,0.1)] px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-10 w-10 rounded-2xl bg-[#dfe9e1]" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-3 w-20 bg-[#dfe9e1]" />
+                        <Skeleton className="h-4 w-56 bg-[#d4e0d7]" />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Skeleton className="h-10 w-28 rounded-full bg-[#dfe9e1]" />
+                      <Skeleton className="h-10 w-32 rounded-full bg-[#dfe9e1]" />
+                    </div>
+                  </div>
+                  <div className="space-y-3 px-4 py-3">
+                    <div className="grid gap-3 lg:grid-cols-[max-content_minmax(0,1fr)_auto]">
+                      <Skeleton className="h-11 rounded-full bg-[#eef4ef]" />
+                      <Skeleton className="h-11 rounded-full bg-[#f5f8f2]" />
+                      <Skeleton className="h-11 w-24 rounded-full bg-[#dfe9e1]" />
+                    </div>
+                    <Skeleton className="h-4 w-[36rem] max-w-full bg-[#dfe9e1]" />
+                  </div>
+                  <Skeleton className="mx-3 mb-3 h-[4.75rem] rounded-[18px] bg-[#0c111b]" />
                 </div>
-                <Skeleton className="mt-4 h-36 rounded-[18px] bg-[#0c111b]" />
-              </div>
             </section>
 
             <div className="panel-surface rounded-[24px] border border-[rgba(20,31,24,0.1)] p-5">
-              <div className="space-y-8">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-8 w-8 rounded-full bg-[#dfe9e1]" />
-                    <Skeleton className="h-5 w-20 bg-[#d4e0d7]" />
+              <div className="space-y-6">
+                <div className="space-y-4 border-b border-[rgba(20,31,24,0.08)] pb-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="space-y-2">
+                      <Skeleton className="h-3 w-28 bg-[#dfe9e1]" />
+                      <Skeleton className="h-10 w-52 bg-[#d4e0d7]" />
+                    </div>
+                    <Skeleton className="h-8 w-28 rounded-full bg-[#dfe9e1]" />
                   </div>
-                  <Skeleton className="h-20 w-4/5 rounded-2xl bg-[#eef4ef]" />
+                  <Skeleton className="h-12 rounded-full bg-[#edf3ee]" />
                 </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-end gap-3">
-                    <Skeleton className="h-5 w-16 bg-[#d4e0d7]" />
-                    <Skeleton className="h-8 w-8 rounded-full bg-[#dfe9e1]" />
-                  </div>
-                  <Skeleton className="ml-auto h-16 w-3/4 rounded-2xl bg-[#eef4ef]" />
+                <div className="space-y-4">
+                  <Skeleton className="h-32 rounded-[22px] bg-[#eef4ef]" />
+                  <Skeleton className="h-20 rounded-[22px] bg-[#f3f7f4]" />
+                  <Skeleton className="h-48 rounded-[22px] bg-[#eef4ef]" />
                 </div>
               </div>
               <div className="mt-10 flex items-center justify-end gap-3">
@@ -225,26 +233,34 @@ export function LiveMentorWorkspace() {
   return (
     <main className="min-h-screen bg-transparent px-3 py-3 text-[#16211b] sm:px-4 sm:py-4">
       <div className="workspace-shell mx-auto min-h-[calc(100vh-1.5rem)] max-w-[1780px] overflow-hidden rounded-[30px] border border-[rgba(20,31,24,0.14)]">
-        <header className="flex items-center justify-between gap-4 border-b border-black/10 bg-[#0b0f0d] px-5 py-4">
+        <header className="flex flex-col gap-4 border-b border-black/10 bg-[#0b0f0d] px-5 py-4 xl:flex-row xl:items-start xl:justify-between">
           <div className="min-w-0">
             <p className="workspace-eyebrow">Agent tutor</p>
-            <h1 className="workspace-heading truncate text-[2.1rem] leading-[1.06] text-white">
+            <h1 className="workspace-heading max-w-[13ch] text-[clamp(2rem,2.8vw,3rem)] leading-[0.98] text-white">
               Python foundations workspace
             </h1>
-            <p className="mt-1 max-w-3xl text-sm text-[#b2c3b7]">
+            <p className="mt-2 max-w-2xl text-[0.95rem] leading-6 text-[#b2c3b7]">
               {ambientCue}
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Badge className="hidden rounded-full border border-[#84d7ae]/18 bg-[#14221d] px-4 py-2 text-sm font-medium text-[#d5fff0] shadow-none xl:inline-flex">
+          <div className="flex flex-wrap items-center gap-2.5 xl:max-w-[54rem] xl:justify-end">
+            {workspace.loadedLesson ? (
+              <Badge className="hidden rounded-full border border-[#84d7ae]/18 bg-[#14221d] px-3.5 py-2 text-[0.78rem] font-medium text-[#d5fff0] shadow-none lg:inline-flex">
+                <BookOpenCheck className="mr-2 h-3.5 w-3.5" />
+                {workspace.loadedLesson.lessonTitle}
+              </Badge>
+            ) : null}
+            <Badge className="hidden rounded-full border border-[#84d7ae]/18 bg-[#14221d] px-3.5 py-2 text-[0.78rem] font-medium text-[#d5fff0] shadow-none lg:inline-flex">
               {voice.isSessionLive ? `Tutor ${voice.sessionPhase}` : "Tutor ready"}
             </Badge>
             <Tooltip>
               <TooltipTrigger>
-                <Badge className="rounded-full border border-[#d5a443]/22 bg-[#f7ecd1] px-3 py-1.5 text-xs font-medium text-[#78541d]">
-                  Reload resets this lesson workspace
-                </Badge>
+                <span className="inline-flex">
+                  <Badge className="rounded-full border border-[#d5a443]/22 bg-[#f7ecd1] px-3 py-1.5 text-[0.73rem] font-medium text-[#78541d]">
+                    Reload resets this lesson workspace
+                  </Badge>
+                </span>
               </TooltipTrigger>
               <TooltipContent>
                 This workspace is disposable for the hackathon demo.
@@ -255,7 +271,7 @@ export function LiveMentorWorkspace() {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="flex items-center gap-3 rounded-full border border-black/8 bg-[#f8fbf7] px-3 py-2 text-left text-[#16211b] transition hover:bg-[#edf4ef]"
+                  className="flex h-14 items-center gap-3 rounded-full border border-black/8 bg-[#f8fbf7] px-3.5 py-2 text-left text-[#16211b] transition hover:bg-[#edf4ef]"
                 >
                   <Avatar
                     size="lg"
@@ -308,50 +324,76 @@ export function LiveMentorWorkspace() {
           </div>
         </header>
 
-        <div className="grid min-h-[calc(100vh-7rem)] grid-cols-1 gap-4 p-4 xl:grid-cols-[minmax(0,3fr)_minmax(340px,1fr)]">
+        <div className="grid min-h-[calc(100vh-7rem)] grid-cols-1 gap-4 p-4 xl:grid-cols-[minmax(0,1fr)_420px]">
           <section
             ref={workspaceRegionRef}
-            className={`grid min-h-0 gap-4 xl:min-h-[calc(100vh-9rem)] ${
-              shouldExpandTerminal
-                ? "grid-rows-[minmax(0,1fr)_220px]"
-                : "grid-rows-[minmax(0,1fr)_168px]"
-            }`}
+            className="grid min-h-0 gap-4 lg:min-h-[calc(100vh-9rem)]"
           >
-            <CodeEditorSurface
-              activeFile={workspace.activeFile}
-              files={workspace.files}
-              lesson={workspace.lesson}
-              onChange={workspace.updateFileContent}
-              onSelectFile={workspace.updateActiveFile}
-              tutorNote={tutorNote}
-            />
+            <ScrollArea className="min-h-0 h-full">
+              <div
+                className={`grid min-h-full gap-4 pr-3 ${
+                  shouldExpandTerminal
+                    ? "grid-rows-[minmax(0,1fr)_220px]"
+                    : "grid-rows-[minmax(0,1fr)_160px]"
+                }`}
+              >
+                <CodeEditorSurface
+                  activeFile={workspace.activeFile}
+                  files={workspace.files}
+                  lessonTitle={
+                    workspace.loadedLesson?.lessonTitle ??
+                    "Python Foundations"
+                  }
+                  onChange={workspace.updateFileContent}
+                  onSelectFile={workspace.updateActiveFile}
+                  taskSummary={workspace.activeTaskSummary}
+                />
 
-            <TerminalSurface
-              ambientCue={ambientCue}
-              isRunningCommand={workspace.isRunningCommand}
-              lesson={workspace.lesson}
-              onProgramInputChange={workspace.updateProgramInput}
-              onReset={workspace.resetLesson}
-              onRunProgram={workspace.runProgram}
-              onRunTests={workspace.runTests}
-              programInput={workspace.programInput}
-              runtime={workspace.runtime}
-              terminalBuffer={workspace.terminalBuffer}
-            />
+                <TerminalSurface
+                  ambientCue={ambientCue}
+                  isRunningCommand={workspace.isRunningCommand}
+                  onProgramInputChange={workspace.updateProgramInput}
+                  onReset={workspace.resetLesson}
+                  onRunProgram={workspace.runProgram}
+                  onRunTests={workspace.runTests}
+                  programInput={workspace.programInput}
+                  runtime={workspace.runtime}
+                  terminalBuffer={workspace.terminalBuffer}
+                />
+              </div>
+            </ScrollArea>
           </section>
 
-          <div className="min-h-0 xl:h-[calc(100vh-9rem)]">
-            <VoiceAgentPanel
+          <div className="min-h-0 lg:h-[calc(100vh-9rem)]">
+            <LearningRail
+              activeLesson={workspace.loadedLesson}
+              activeRailTab={workspace.activeRailTab}
+              course={workspace.course}
               inputLevel={voice.inputLevel}
               isCapturingAudio={voice.isCapturingAudio}
+              isLoadingLesson={workspace.isLoadingLesson}
               isSessionLive={voice.isSessionLive}
+              lessonView={workspace.lessonView}
+              loadedTopicId={workspace.loadedTopicId}
+              onBackToOutline={() => workspace.updateLessonView("outline")}
               onConnect={voice.connectVoiceSession}
               onDisconnect={voice.disconnectSession}
+              onPreviewTopic={(topicId) =>
+                workspace.updateLessonSelection(topicId, "detail")
+              }
+              onRailTabChange={workspace.updateActiveRailTab}
+              onStartLesson={(topicId) => {
+                voice.disconnectSession();
+                workspace.loadLesson(topicId);
+              }}
               onSuggestedPrompt={voice.sendSuggestedPrompt}
+              selectedLesson={workspace.selectedLesson}
+              selectedTopicId={workspace.selectedTopicId}
               sessionPhase={voice.sessionPhase}
               suggestedPrompts={suggestedPrompts}
-              tutorNote={tutorNote}
+              topicStatusById={workspace.topicStatusById}
               transcripts={voice.transcripts}
+              tutorNote={tutorNote}
             />
           </div>
         </div>

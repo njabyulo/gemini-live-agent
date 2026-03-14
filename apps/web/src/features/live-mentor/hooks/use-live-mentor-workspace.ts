@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  DEFAULT_LESSON_ID,
+  PYTHON_FOUNDATIONS_COURSE,
+  getLessonContextById,
+  getNextLessonId,
+} from "@agent-tutor/shared/consts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 
@@ -7,6 +13,7 @@ import { useSession } from "~/features/auth/services/auth-client";
 
 import {
   bootstrapLessonWorkspace,
+  loadLessonWorkspace,
   resetLessonWorkspace,
   runLessonCommand,
   updateMainFile,
@@ -30,25 +37,39 @@ export function useLiveMentorWorkspace() {
   } = useSession();
 
   const activeFilePath = useLiveMentorStore((state) => state.activeFilePath);
+  const activeRailTab = useLiveMentorStore((state) => state.activeRailTab);
+  const completedTopicIds = useLiveMentorStore((state) => state.completedTopicIds);
   const files = useLiveMentorStore((state) => state.files);
   const lesson = useLiveMentorStore((state) => state.lesson);
+  const lessonView = useLiveMentorStore((state) => state.lessonView);
+  const loadedTopicId = useLiveMentorStore((state) => state.loadedTopicId);
   const programInput = useLiveMentorStore((state) => state.programInput);
   const runtime = useLiveMentorStore((state) => state.runtime);
   const sandboxId = useLiveMentorStore((state) => state.sandboxId);
+  const selectedTopicId = useLiveMentorStore((state) => state.selectedTopicId);
   const sessionPhase = useLiveMentorStore((state) => state.sessionPhase);
   const terminalBuffer = useLiveMentorStore((state) => state.terminalBuffer);
+  const topicStatusById = useLiveMentorStore((state) => state.topicStatusById);
   const transcripts = useLiveMentorStore((state) => state.transcripts);
   const typedPrompt = useLiveMentorStore((state) => state.typedPrompt);
   const setActiveFilePath = useLiveMentorStore(
     (state) => state.setActiveFilePath,
   );
+  const setActiveRailTab = useLiveMentorStore((state) => state.setActiveRailTab);
   const hydrateWorkspace = useLiveMentorStore(
     (state) => state.hydrateWorkspace,
+  );
+  const markTopicCompleted = useLiveMentorStore(
+    (state) => state.markTopicCompleted,
   );
   const publishRuntime = useLiveMentorStore((state) => state.publishRuntime);
   const resetWorkspace = useLiveMentorStore((state) => state.resetWorkspace);
   const setFileContent = useLiveMentorStore((state) => state.setFileContent);
   const setProgramInput = useLiveMentorStore((state) => state.setProgramInput);
+  const setLessonSelection = useLiveMentorStore(
+    (state) => state.setLessonSelection,
+  );
+  const setLessonView = useLiveMentorStore((state) => state.setLessonView);
   const setSession = useLiveMentorStore((state) => state.setSession);
   const setTypedPrompt = useLiveMentorStore((state) => state.setTypedPrompt);
   const appendTerminalBuffer = useLiveMentorStore(
@@ -82,6 +103,14 @@ export function useLiveMentorWorkspace() {
 
   const resetMutation = useMutation({
     mutationFn: resetLessonWorkspace,
+    onSuccess: (payload) => {
+      lastSavedSourceRef.current = payload.snapshot.sourceCode;
+      hydrateWorkspace(payload);
+    },
+  });
+
+  const loadLessonMutation = useMutation({
+    mutationFn: loadLessonWorkspace,
     onSuccess: (payload) => {
       lastSavedSourceRef.current = payload.snapshot.sourceCode;
       hydrateWorkspace(payload);
@@ -169,7 +198,13 @@ export function useLiveMentorWorkspace() {
   const resetLesson = () => {
     resetWorkspace();
     void queryClient.cancelQueries({ queryKey: ["lesson-workspace"] });
-    resetMutation.mutate();
+    resetMutation.mutate(loadedTopicId ?? DEFAULT_LESSON_ID);
+  };
+
+  const loadLesson = (lessonId: string) => {
+    resetWorkspace();
+    void queryClient.cancelQueries({ queryKey: ["lesson-workspace"] });
+    loadLessonMutation.mutate(lessonId);
   };
 
   useEffect(() => {
@@ -198,29 +233,62 @@ export function useLiveMentorWorkspace() {
     }
 
     hasAnnouncedReadinessRef.current = true;
+    if (lesson?.lessonId) {
+      markTopicCompleted(lesson.lessonId);
+    }
     appendTranscript(
       "system",
       "Nice. You preserved the original input exactly. You’re ready.",
     );
-  }, [appendTranscript, runtime.command, runtime.stdout]);
+  }, [appendTranscript, lesson?.lessonId, markTopicCompleted, runtime.command, runtime.stdout]);
+
+  const selectedLesson =
+    getLessonContextById(selectedTopicId ?? loadedTopicId ?? DEFAULT_LESSON_ID) ??
+    lesson;
+  const loadedLesson =
+    getLessonContextById(loadedTopicId ?? lesson?.lessonId ?? DEFAULT_LESSON_ID) ??
+    lesson;
+  const nextLessonId = loadedLesson?.lessonId
+    ? getNextLessonId(loadedLesson.lessonId)
+    : null;
+  const nextLesson =
+    nextLessonId ? getLessonContextById(nextLessonId) : null;
 
   return {
     activeFile,
+    activeRailTab,
+    activeTaskSummary: loadedLesson?.task ?? lesson?.task ?? "",
+    completedTopicIds,
+    course: PYTHON_FOUNDATIONS_COURSE,
     files,
     isBootstrapping:
-      isSessionPending || workspaceQuery.isPending || resetMutation.isPending,
+      isSessionPending ||
+      workspaceQuery.isPending ||
+      resetMutation.isPending ||
+      loadLessonMutation.isPending,
     isRunningCommand: runCommandMutation.isPending,
+    isLoadingLesson: loadLessonMutation.isPending,
     isSessionPending,
     lesson,
+    lessonView,
+    loadedLesson,
+    loadedTopicId,
+    nextLesson,
     programInput,
     runtime,
+    selectedLesson,
+    selectedTopicId,
     session,
     sessionError,
     sessionPhase,
     terminalBuffer,
+    topicStatusById,
     transcripts,
     typedPrompt,
+    updateActiveRailTab: setActiveRailTab,
     updateActiveFile: setActiveFilePath,
+    updateLessonSelection: setLessonSelection,
+    updateLessonView: setLessonView,
     updateProgramInput: setProgramInput,
     updateFileContent: (content: string) => {
       if (!activeFile?.isEditable) {
@@ -229,6 +297,7 @@ export function useLiveMentorWorkspace() {
 
       setFileContent(activeFile.path, content);
     },
+    loadLesson,
     resetLesson,
     runProgram,
     runTests,

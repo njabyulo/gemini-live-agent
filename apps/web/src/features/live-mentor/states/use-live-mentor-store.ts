@@ -1,9 +1,16 @@
 "use client";
 
+import {
+  COURSE_TOPIC_ORDER,
+  DEFAULT_LESSON_ID,
+} from "@agent-tutor/shared/consts";
 import type { IRuntimeSnapshot } from "@agent-tutor/shared/types";
 import { create } from "zustand";
 
-import type { ILiveMentorStoreState } from "../types";
+import type {
+  ILiveMentorStoreState,
+  TCourseTopicStatus,
+} from "../types";
 import { DEFAULT_PROGRAM_INPUT } from "../utils/terminal";
 
 const INITIAL_RUNTIME: IRuntimeSnapshot = {
@@ -13,19 +20,46 @@ const INITIAL_RUNTIME: IRuntimeSnapshot = {
   stdout: "",
 };
 
+const buildTopicStatusById = (
+  loadedTopicId: string | null,
+  completedTopicIds: string[],
+): Record<string, TCourseTopicStatus> => {
+  const completedSet = new Set(completedTopicIds);
+
+  return Object.fromEntries(
+    COURSE_TOPIC_ORDER.map((topicId) => {
+      if (completedSet.has(topicId)) {
+        return [topicId, "completed"];
+      }
+
+      if (loadedTopicId === topicId) {
+        return [topicId, "active"];
+      }
+
+      return [topicId, "available"];
+    }),
+  );
+};
+
 export const useLiveMentorStore = create<ILiveMentorStoreState>((set) => ({
   activeFilePath: "/workspace/main.py",
+  activeRailTab: "lesson",
+  completedTopicIds: [],
   contextVersion: 0,
   files: [],
   isCapturingAudio: false,
   isSessionLive: false,
   lesson: null,
+  lessonView: "detail",
+  loadedTopicId: DEFAULT_LESSON_ID,
   programInput: DEFAULT_PROGRAM_INPUT,
   runtime: INITIAL_RUNTIME,
   sandboxId: null,
+  selectedTopicId: DEFAULT_LESSON_ID,
   session: null,
   sessionPhase: "idle",
   terminalBuffer: "",
+  topicStatusById: buildTopicStatusById(DEFAULT_LESSON_ID, []),
   transcripts: [],
   typedPrompt: "",
   appendTerminalBuffer: (value) =>
@@ -55,24 +89,48 @@ export const useLiveMentorStore = create<ILiveMentorStoreState>((set) => ({
             ],
     })),
   hydrateWorkspace: (payload) =>
-    set({
+    set((state) => ({
       activeFilePath: payload.lesson.focusFilePath,
+      activeRailTab: "lesson",
       contextVersion: 0,
       files: payload.files,
+      isCapturingAudio: false,
+      isSessionLive: false,
       lesson: payload.lesson,
-      programInput: DEFAULT_PROGRAM_INPUT,
+      lessonView: "detail",
+      loadedTopicId: payload.lesson.lessonId,
+      programInput: payload.lesson.sampleInput || DEFAULT_PROGRAM_INPUT,
       runtime: payload.snapshot,
       sandboxId: payload.sandboxId,
+      selectedTopicId: payload.lesson.lessonId,
       sessionPhase: "idle",
       terminalBuffer: "",
+      topicStatusById: buildTopicStatusById(
+        payload.lesson.lessonId,
+        state.completedTopicIds,
+      ),
       transcripts: [
         {
-          id: "system-ready",
+          id: `system-ready-${payload.lesson.lessonId}`,
           role: "system",
-          text: "Workspace ready. Run a Python command, then ask the tutor for help.",
+          text: `Lesson loaded: ${payload.lesson.lessonTitle}. Run the program, then ask the tutor for one precise next step.`,
         },
       ],
       typedPrompt: "",
+    })),
+  markTopicCompleted: (topicId) =>
+    set((state) => {
+      const completedTopicIds = state.completedTopicIds.includes(topicId)
+        ? state.completedTopicIds
+        : [...state.completedTopicIds, topicId];
+
+      return {
+        completedTopicIds,
+        topicStatusById: buildTopicStatusById(
+          state.loadedTopicId,
+          completedTopicIds,
+        ),
+      };
     }),
   publishRuntime: (runtime) =>
     set((state) => ({
@@ -82,20 +140,27 @@ export const useLiveMentorStore = create<ILiveMentorStoreState>((set) => ({
   resetWorkspace: () =>
     set({
       activeFilePath: "/workspace/main.py",
+      activeRailTab: "lesson",
+      completedTopicIds: [],
       contextVersion: 0,
       files: [],
       isCapturingAudio: false,
       isSessionLive: false,
       lesson: null,
+      lessonView: "detail",
+      loadedTopicId: DEFAULT_LESSON_ID,
       programInput: DEFAULT_PROGRAM_INPUT,
       runtime: INITIAL_RUNTIME,
       sandboxId: null,
+      selectedTopicId: DEFAULT_LESSON_ID,
       sessionPhase: "idle",
       terminalBuffer: "",
+      topicStatusById: buildTopicStatusById(DEFAULT_LESSON_ID, []),
       transcripts: [],
       typedPrompt: "",
     }),
   setActiveFilePath: (path) => set({ activeFilePath: path }),
+  setActiveRailTab: (activeRailTab) => set({ activeRailTab }),
   setFileContent: (path, content) =>
     set((state) => ({
       files: state.files.map((file) =>
@@ -108,6 +173,9 @@ export const useLiveMentorStore = create<ILiveMentorStoreState>((set) => ({
     })),
   setIsCapturingAudio: (value) => set({ isCapturingAudio: value }),
   setIsSessionLive: (value) => set({ isSessionLive: value }),
+  setLessonSelection: (selectedTopicId, lessonView = "detail") =>
+    set({ lessonView, selectedTopicId }),
+  setLessonView: (lessonView) => set({ lessonView }),
   setProgramInput: (value) => set({ programInput: value }),
   setSession: (session) => set({ session }),
   setSessionPhase: (phase) => set({ sessionPhase: phase }),
