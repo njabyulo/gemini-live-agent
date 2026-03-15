@@ -42,7 +42,7 @@ Example `vars` block for `infra/apps/web/wrangler.jsonc`:
 {
   "vars": {
     "NEXT_PUBLIC_API_BASE_URL": "https://gemini-live-agent.njabulomajozi.com",
-    "NEXT_PUBLIC_AGENT_TUTOR_LIVE_WS_URL": "wss://agent-tutor-live-xxxxx.a.run.app"
+    "NEXT_PUBLIC_AGENT_TUTOR_LIVE_WS_URL": "wss://<agent-tutor-live-service-url>/live"
   }
 }
 ```

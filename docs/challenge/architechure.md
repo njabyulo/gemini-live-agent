@@ -1,8 +1,8 @@
-# Agent Tutor Architecture
+# Gemini Live Agent Architecture
 
 This page is written for Gemini Live Agent Challenge judges.
 
-`agent-tutor` is a coding workspace where the learner edits Python, runs real commands, and asks a live tutor for help. The tutor is grounded on the current lesson, the current code, the latest terminal output, and a screenshot of the visible workspace.
+`gemini-live-agent` is a coding workspace where the learner edits Python, runs real commands, and asks a live tutor for help. The tutor is grounded on the current lesson, the current code, the latest terminal output, and a screenshot of the visible workspace.
 
 ## What To Verify
 
@@ -102,7 +102,7 @@ This architecture is important because the tutor is:
   - screenshot of the current workspace
 - challenge-aligned
   - Gemini Live through the Google GenAI SDK
-  - live-agent backend hosted on Google Cloud Run
+  - live tutor backend hosted on Google Cloud Run
   - code-execution backend hosted on Google Cloud Run
 
 ## Code Pointers
@@ -116,8 +116,8 @@ If you want to inspect the main surfaces directly:
 - Runner service:
   - `apps/runner-code-executor/src/index.ts`
 - Live tutor entrypoint:
-- `apps/agent-tutor-live/src/index.ts`
+  - `apps/agent-tutor-live/src/index.ts`
 - Gemini Live session creation:
-- `apps/agent-tutor-live/src/workflows/createLiveTutorSession.ts`
+  - `apps/agent-tutor-live/src/workflows/createLiveTutorSession.ts`
 - Shared lesson/live contracts:
   - `packages/shared/src`

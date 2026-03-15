@@ -1,6 +1,6 @@
-# Agent Tutor
+# Gemini Live Agent
 
-`agent-tutor` is an AI-native Python learning workspace built for the Gemini Live Agent Challenge.
+`gemini-live-agent` is an AI-native Python learning workspace built for the Gemini Live Agent Challenge.
 
 It combines:
 - a browser code editor with Monaco
@@ -90,7 +90,5 @@ These docs are intended to support the Gemini Live Agent Challenge submission di
 
 ## Additional Docs
 
-- local development:
-  - `docs/guides/dev`
-- deployment:
-  - `docs/guides/deploy`
+- [Development guides](docs/guides/dev/README.md)
+- [Deployment guides](docs/guides/deploy/README.md)

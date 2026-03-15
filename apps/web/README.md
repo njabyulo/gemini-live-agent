@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Web App
 
-## Getting Started
+`apps/web` is the learner-facing Next.js app for `gemini-live-agent`.
 
-First, run the development server:
+## Responsibilities
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- render the sign-in screen at `/`
+- render the lesson workspace at `/app`
+- host Monaco, xterm.js, and the learning rail UI
+- capture workspace screenshots for multimodal tutor grounding
+- connect to `apps/api` for auth and lesson runtime routes
+- connect to `apps/agent-tutor-live` for live tutor sessions
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local Run
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+From the repo root:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- full stack: `pnpm dev`
+- web only: `pnpm --filter web dev`
 
-## Learn More
+Default local URL:
 
-To learn more about Next.js, take a look at the following resources:
+- `http://localhost:3000`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Runtime Config
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Browser-facing runtime values:
 
-## Deploy on Vercel
+- `NEXT_PUBLIC_API_BASE_URL`
+- `NEXT_PUBLIC_AGENT_TUTOR_LIVE_WS_URL`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+For local development these usually point to:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `http://localhost:8787`
+- `ws://localhost:8080/live`
+
+## Verification
+
+At `http://localhost:3000`:
+
+1. sign in successfully
+2. reach `/app`
+3. switch lesson and tutor tabs
+4. run a Python command and see terminal output
+5. start a live tutor session

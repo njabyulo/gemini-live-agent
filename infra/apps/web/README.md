@@ -6,7 +6,7 @@ Cloudflare deployment configuration for `apps/web` lives here.
 
 - host the public demo frontend
 - keep Cloudflare routing and deployment concerns out of `apps/web`
-- preserve a clear split between frontend hosting and the Cloud Run live-agent runtime
+- preserve a clear split between frontend hosting and the Cloud Run live tutor runtime
 
 ## Files
 

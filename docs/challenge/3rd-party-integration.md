@@ -2,7 +2,7 @@
 
 This page is written for Gemini Live Agent Challenge judges.
 
-It lists the main non-Google third-party services and libraries used by `agent-tutor`.
+It lists the main non-Google third-party services and libraries used by `gemini-live-agent`.
 
 Google-specific challenge services are documented separately in `docs/challenge/google-integration.md`.
 
@@ -94,4 +94,4 @@ Repo evidence:
 
 ## Summary
 
-> In addition to the Google challenge stack, `agent-tutor` uses Cloudflare Workers + Hono for the API layer, Better Auth + D1 for auth/session persistence, Monaco Editor for code editing, xterm.js for the terminal, `html-to-image` for workspace screenshot capture, shadcn/ui + Radix primitives for UI, and Zustand for client-side workspace state.
+> In addition to the Google challenge stack, `gemini-live-agent` uses Cloudflare Workers + Hono for the API layer, Better Auth + D1 for auth/session persistence, Monaco Editor for code editing, xterm.js for the terminal, `html-to-image` for workspace screenshot capture, shadcn/ui + Radix primitives for UI, and Zustand for client-side workspace state.

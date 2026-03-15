@@ -28,19 +28,19 @@ NEXT_PUBLIC_AGENT_TUTOR_LIVE_WS_URL=ws://localhost:8080/live
 
 At `/`:
 
-1. A centered `Login` button
+1. The sign-in screen for the judge account
 2. No sign-up path
 
 At `/app` after login:
 
-1. Top navbar with app name
-2. Badge: `Reload resets this lesson workspace`
-3. Monaco editor with:
+1. The workspace shell loads without runtime errors
+2. Monaco editor with:
    - `main.py`
    - `README.md`
    - `test_main.py`
-4. Bottom terminal area powered by `@xterm/xterm`
-5. Right-side voice tutor rail
+3. Bottom terminal area powered by `@xterm/xterm`
+4. Right-side learning rail with `Lesson` and `Tutor`
+ 5. Header mic control available across the learning rail
 
 ## Local Verification
 
@@ -48,7 +48,7 @@ At `/app` after login:
 2. `/app` boots a fresh disposable workspace
 3. Editing `main.py` updates the in-memory lesson state
 4. Running `python3 main.py "Ada Lovelace"` shows real runtime output in the terminal
-5. `Reset lesson` provisions a fresh workspace again
+5. Loading a lesson provisions a fresh workspace again
 6. Voice tutor can connect to `apps/agent-tutor-live`
 
 ## Quality Checks

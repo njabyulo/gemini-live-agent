@@ -1,12 +1,16 @@
-# Agent Live Deployment Guide
+# Agent Tutor Live Deployment Guide
 
 ## Scope
 
-Deploy `apps/agent-tutor-live` to Google Cloud Run.
+Deploy `apps/agent-tutor-live` to Google Cloud Run as the live tutoring backend.
 
 ## Infra Source of Truth
 
 - `infra/apps/agent-tutor-live/cloudrun.yaml`
+
+Current production service:
+
+- `gemini-live-agent-prod-run-agent-backend-00`
 
 ## Required Environment
 
@@ -38,4 +42,4 @@ Deploy `apps/agent-tutor-live` to Google Cloud Run.
 2. WebSocket upgrade on `/live` works
 3. Tutor responses reference current source code and runtime output
 4. Audio in/out and transcripts work end to end
-5. The architecture diagram and demo clearly show Cloud Run as the live-agent host
+5. The architecture diagram and demo clearly show Cloud Run as the live tutor host

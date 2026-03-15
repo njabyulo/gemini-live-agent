@@ -2,13 +2,13 @@
 
 This page is written for Gemini Live Agent Challenge judges.
 
-Google services are not an optional add-on in `agent-tutor`. They are part of the core product and the category fit.
+Google services are not an optional add-on in `gemini-live-agent`. They are part of the core product and the category fit.
 
 ## What To Verify
 
 - Gemini Live is the tutor model/runtime
-- The Google GenAI SDK is used in the live-agent backend
-- The live-agent backend is hosted on Google Cloud Run
+- The Google GenAI SDK is used in the live tutor backend
+- The live tutor backend is hosted on Google Cloud Run
 - The code-execution backend is also hosted on Google Cloud Run
 
 ## Google Services Used
@@ -38,7 +38,7 @@ Used to host:
 - `apps/agent-tutor-live`
 - `apps/runner-code-executor`
 
-This covers both the live-agent backend required for the Live Agents category and the internal code-execution backend.
+This covers both the live tutor backend required for the Live Agents category and the internal code-execution backend.
 
 Repo evidence:
 - `infra/apps/agent-tutor-live/cloudrun.yaml`
@@ -62,14 +62,14 @@ This means the Google stack is directly visible in the product:
 
 ## Summary
 
-> `agent-tutor` uses Gemini Live through the Google GenAI SDK to power a real-time coding tutor that can hear the learner, speak back, and reason over lesson context, runtime output, and a screenshot of the visible workspace. Google Cloud Run hosts both the `apps/agent-tutor-live` backend and the internal code-execution runner used by the lesson workspace.
+> `gemini-live-agent` uses Gemini Live through the Google GenAI SDK to power a real-time coding tutor that can hear the learner, speak back, and reason over lesson context, runtime output, and a screenshot of the visible workspace. Google Cloud Run hosts both the `apps/agent-tutor-live` backend and the internal code-execution runner used by the lesson workspace.
 
 ## Code Pointers
 
 - Live tutor entrypoint:
-- `apps/agent-tutor-live/src/index.ts`
+  - `apps/agent-tutor-live/src/index.ts`
 - Gemini session creation:
-- `apps/agent-tutor-live/src/workflows/createLiveTutorSession.ts`
+  - `apps/agent-tutor-live/src/workflows/createLiveTutorSession.ts`
 - Cloud Run deploy surface:
-- `infra/apps/agent-tutor-live/cloudrun.yaml`
+  - `infra/apps/agent-tutor-live/cloudrun.yaml`
   - `infra/apps/runner-code-executor/cloudrun.yaml`

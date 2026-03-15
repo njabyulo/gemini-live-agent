@@ -36,7 +36,7 @@ RUNNER_CODE_EXECUTOR_BASE_URL=http://127.0.0.1:8090
 
 ## Run
 
-1. Full frontend+api loop: `pnpm dev`
+1. Full local stack: `pnpm dev`
 2. API only: `pnpm --filter api dev`
 3. Worker URL: `http://localhost:8787`
 
