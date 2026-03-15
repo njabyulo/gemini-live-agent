@@ -20,7 +20,7 @@
     "clean:all": "pnpm run clean"
   },
   "dependencies": {
-    "@agent-tutor/shared": "workspace:*",
+    "@gemini-live-agent/shared": "workspace:*",
     "better-auth": "1.5.5",
     "hono": "4.12.7",
     "zod": "4.3.6"

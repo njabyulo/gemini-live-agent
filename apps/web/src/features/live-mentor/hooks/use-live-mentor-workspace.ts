@@ -5,7 +5,7 @@ import {
   PYTHON_FOUNDATIONS_COURSE,
   getLessonContextById,
   getNextLessonId,
-} from "@agent-tutor/shared/consts";
+} from "@gemini-live-agent/shared/consts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 

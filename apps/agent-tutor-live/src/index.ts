@@ -1,13 +1,13 @@
 import { createServer } from "node:http";
 
-import { INPUT_AUDIO_MIME_TYPE } from "@agent-tutor/shared/consts";
+import { INPUT_AUDIO_MIME_TYPE } from "@gemini-live-agent/shared/consts";
 import {
   SBrowserEvent,
   type ILiveLessonGrounding,
   type IRuntimeSnapshot,
   type TServerErrorEvent,
   type TServerStatusEvent,
-} from "@agent-tutor/shared/types";
+} from "@gemini-live-agent/shared/types";
 import { WebSocketServer } from "ws";
 
 import { createLiveTutorSession } from "./workflows/createLiveTutorSession.js";
@@ -30,7 +30,7 @@ const wss = new WebSocketServer({ path: "/live", server });
 wss.on("connection", (socket) => {
   let session: Awaited<ReturnType<typeof createLiveTutorSession>> | null = null;
   let startEvent:
-    | import("@agent-tutor/shared/types").TBrowserStartEvent
+    | import("@gemini-live-agent/shared/types").TBrowserStartEvent
     | null = null;
   let currentContext: IRuntimeSnapshot = {
     command: "",

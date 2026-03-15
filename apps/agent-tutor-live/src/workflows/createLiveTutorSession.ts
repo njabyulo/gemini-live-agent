@@ -2,7 +2,7 @@ import { GoogleGenAI, Modality } from "@google/genai";
 import {
   DEFAULT_LIVE_MODEL,
   OUTPUT_AUDIO_MIME_TYPE,
-} from "@agent-tutor/shared/consts";
+} from "@gemini-live-agent/shared/consts";
 import type {
   IFunctionCallResult,
   IRuntimeSnapshot,
@@ -13,7 +13,7 @@ import type {
   TServerOutputTranscriptEvent,
   TServerStatusEvent,
   TServerSummaryEvent,
-} from "@agent-tutor/shared/types";
+} from "@gemini-live-agent/shared/types";
 import type { WebSocket } from "ws";
 
 import { LIVE_TUTOR_SYSTEM_INSTRUCTION } from "../lib/tutor-instructions.js";

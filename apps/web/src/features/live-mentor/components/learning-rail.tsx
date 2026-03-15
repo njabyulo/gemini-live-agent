@@ -3,7 +3,7 @@
 import { Mic, MicOff } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import type { ICourseDefinition, ILessonContext } from "@agent-tutor/shared/types";
+import type { ICourseDefinition, ILessonContext } from "@gemini-live-agent/shared/types";
 import { Button } from "~/components/ui/button";
 
 import type { ITranscriptMessage, TCourseTopicStatus } from "../types";
@@ -94,7 +94,7 @@ export function LearningRail({
             onClick={isTransportActive ? onDisconnect : onConnect}
             data-listening={isSoundActive}
             data-active={isTransportActive}
-            className={`agent-tutor-mic-control h-12 w-12 shrink-0 rounded-full border transition ${
+            className={`gemini-live-agent-mic-control h-12 w-12 shrink-0 rounded-full border transition ${
               isTransportActive
                 ? "border-[#1f2c38] bg-[#162028] text-[#edf4ff] hover:bg-[#162028]"
                 : "border-[rgba(20,31,24,0.08)] bg-[#f7fbf7] text-[#486055] hover:bg-[#edf3ee]"

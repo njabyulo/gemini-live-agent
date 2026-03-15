@@ -8,7 +8,7 @@ import type {
   TBrowserEvent,
   TServerEvent,
   TSessionPhase,
-} from "@agent-tutor/shared/types";
+} from "@gemini-live-agent/shared/types";
 
 export type TTranscriptRole = "assistant" | "system" | "user";
 

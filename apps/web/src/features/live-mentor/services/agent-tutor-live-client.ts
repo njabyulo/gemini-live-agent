@@ -1,4 +1,4 @@
-import type { TBrowserEvent, TServerEvent } from "@agent-tutor/shared/types";
+import type { TBrowserEvent, TServerEvent } from "@gemini-live-agent/shared/types";
 
 import type { IAgentTutorLiveClientConnectInput } from "../types";
 

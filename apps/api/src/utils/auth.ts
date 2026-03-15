@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import type { ISessionSummary } from "@agent-tutor/shared/types";
+import type { ISessionSummary } from "@gemini-live-agent/shared/types";
 
 import { getTrustedOrigins, type IApiEnv } from "./env";
 

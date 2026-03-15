@@ -1,5 +1,5 @@
 {
-  "name": "agent-tutor",
+  "name": "gemini-live-agent",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.31.0",

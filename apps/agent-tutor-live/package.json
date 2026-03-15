@@ -19,7 +19,7 @@
     "clean:all": "pnpm run clean"
   },
   "dependencies": {
-    "@agent-tutor/shared": "workspace:*",
+    "@gemini-live-agent/shared": "workspace:*",
     "@google/genai": "1.44.0",
     "ws": "8.19.0"
   },

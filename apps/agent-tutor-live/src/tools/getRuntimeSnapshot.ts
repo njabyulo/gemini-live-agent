@@ -1,4 +1,4 @@
-import type { IRuntimeSnapshot } from "@agent-tutor/shared/types";
+import type { IRuntimeSnapshot } from "@gemini-live-agent/shared/types";
 
 export const getRuntimeSnapshot = (
   runtime: Partial<IRuntimeSnapshot>,

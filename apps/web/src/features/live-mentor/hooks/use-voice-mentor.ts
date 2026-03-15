@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ILiveLessonGrounding } from "@agent-tutor/shared/types";
+import type { ILiveLessonGrounding } from "@gemini-live-agent/shared/types";
 
 import { AgentTutorLiveClient } from "../services/agent-tutor-live-client";
 import { getAgentTutorLiveWebSocketUrl } from "../services/api-client";
@@ -177,7 +177,7 @@ export function useVoiceMentor({
   }, [isSessionLive, sendContextUpdate]);
 
   const handleServerEvent = async (
-    event: import("@agent-tutor/shared/types").TServerEvent,
+    event: import("@gemini-live-agent/shared/types").TServerEvent,
   ) => {
     if (event.type === "ready") {
       isConnectingRef.current = false;

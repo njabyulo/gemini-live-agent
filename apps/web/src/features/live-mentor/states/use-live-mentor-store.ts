@@ -3,8 +3,8 @@
 import {
   COURSE_TOPIC_ORDER,
   DEFAULT_LESSON_ID,
-} from "@agent-tutor/shared/consts";
-import type { IRuntimeSnapshot } from "@agent-tutor/shared/types";
+} from "@gemini-live-agent/shared/consts";
+import type { IRuntimeSnapshot } from "@gemini-live-agent/shared/types";
 import { create } from "zustand";
 
 import type {

@@ -6,7 +6,7 @@ spec:
   template:
     spec:
       containers:
-        - image: us-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/agent-tutor/agent-tutor-live:latest
+        - image: us-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/gemini-live-agent/agent-tutor-live:latest
           ports:
             - containerPort: 8080
           env:

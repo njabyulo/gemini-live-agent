@@ -14,7 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import type { ICourseDefinition, ILessonContext } from "@agent-tutor/shared/types";
+import type { ICourseDefinition, ILessonContext } from "@gemini-live-agent/shared/types";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";

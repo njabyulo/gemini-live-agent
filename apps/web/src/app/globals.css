@@ -225,7 +225,7 @@
     line-height: 1.7;
   }
 
-  .agent-tutor-mic-control {
+  .gemini-live-agent-mic-control {
     position: relative;
     box-shadow:
       0 10px 26px rgba(17, 28, 22, 0.08),
@@ -238,7 +238,7 @@
       transform 220ms ease;
   }
 
-  .agent-tutor-mic-control::before {
+  .gemini-live-agent-mic-control::before {
     position: absolute;
     inset: -8px;
     border-radius: 999px;
@@ -254,26 +254,26 @@
     pointer-events: none;
   }
 
-  .agent-tutor-mic-control[data-active="true"] {
+  .gemini-live-agent-mic-control[data-active="true"] {
     box-shadow:
       0 14px 34px rgba(9, 16, 26, 0.18),
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
-  .agent-tutor-mic-control:hover {
+  .gemini-live-agent-mic-control:hover {
     transform: translateY(-1px);
   }
 
-  .agent-tutor-mic-control[data-active="true"]::before {
+  .gemini-live-agent-mic-control[data-active="true"]::before {
     opacity: 1;
     transform: scale(1);
   }
 
-  .agent-tutor-mic-control[data-listening="true"]::before {
+  .gemini-live-agent-mic-control[data-listening="true"]::before {
     border-color: rgba(132, 215, 174, 0.42);
     opacity: 1;
     transform: scale(1.06);
-    animation: agent-tutor-mic-pulse 1.2s ease-in-out infinite;
+    animation: gemini-live-agent-mic-pulse 1.2s ease-in-out infinite;
   }
 
   .terminal-surface .xterm-viewport {
@@ -306,7 +306,7 @@
   }
 }
 
-@keyframes agent-tutor-mic-pulse {
+@keyframes gemini-live-agent-mic-pulse {
   0%,
   100% {
     transform: scale(1.02);

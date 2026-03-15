@@ -19,7 +19,7 @@
     "clean:all": "pnpm run clean"
   },
   "dependencies": {
-    "@agent-tutor/shared": "workspace:*",
+    "@gemini-live-agent/shared": "workspace:*",
     "@base-ui/react": "1.3.0",
     "@cloudflare/sandbox": "0.7.17",
     "@monaco-editor/react": "4.7.0",

@@ -1,5 +1,5 @@
 {
-  "name": "@agent-tutor/shared",
+  "name": "@gemini-live-agent/shared",
   "version": "0.1.0",
   "type": "module",
   "exports": {
@@ -14,7 +14,7 @@
     "lint:type": "tsc --noEmit",
     "test": "pnpm run test:unit && pnpm run test:e2e",
     "test:unit": "vitest run --passWithNoTests",
-    "test:e2e": "echo \"No e2e tests for @agent-tutor/shared\"",
+    "test:e2e": "echo \"No e2e tests for @gemini-live-agent/shared\"",
     "build": "tsup",
     "clean": "find . -name dist -prune -exec rm -r {} + 2>/dev/null || true",
     "clean:all": "pnpm run clean"

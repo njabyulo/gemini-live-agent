@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { SRuntimeSnapshot } from "@agent-tutor/shared/types";
+import { SRuntimeSnapshot } from "@gemini-live-agent/shared/types";
 
 export const SLessonFileUpdateBody = z.object({
   sandboxId: z.string().min(1),

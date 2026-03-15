@@ -1,7 +1,7 @@
 import type {
   IRuntimeSnapshot,
   IWorkspaceBootstrapResponse,
-} from "@agent-tutor/shared/types";
+} from "@gemini-live-agent/shared/types";
 
 import type { IWorkspaceRunInput } from "../types";
 import { fetchJson } from "./api-client";

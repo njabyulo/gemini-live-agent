@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@agent-tutor/shared"],
+  transpilePackages: ["@gemini-live-agent/shared"],
 };
 
 export default nextConfig;

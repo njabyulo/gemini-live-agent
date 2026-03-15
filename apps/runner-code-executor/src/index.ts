@@ -161,7 +161,7 @@ app.post("/execute", async (c) => {
     );
   }
 
-  const workspaceRoot = await mkdtemp(join(tmpdir(), "agent-tutor-run-"));
+  const workspaceRoot = await mkdtemp(join(tmpdir(), "gemini-live-agent-run-"));
 
   try {
     for (const file of payload.files) {

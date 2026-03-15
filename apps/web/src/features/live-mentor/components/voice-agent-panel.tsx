@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useRef } from "react";
 
-import type { ILessonContext } from "@agent-tutor/shared/types";
+import type { ILessonContext } from "@gemini-live-agent/shared/types";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";

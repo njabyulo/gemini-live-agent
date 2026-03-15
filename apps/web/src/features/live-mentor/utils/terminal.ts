@@ -1,4 +1,4 @@
-import type { IRuntimeSnapshot } from "@agent-tutor/shared/types";
+import type { IRuntimeSnapshot } from "@gemini-live-agent/shared/types";
 
 export const PYTHON_COMMAND_PREFIX = "python3 main.py";
 export const PYTEST_COMMAND = "python3 -m pytest -q";

@@ -14,7 +14,7 @@ import {
 } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
 
-import type { IWorkspaceFileRecord } from "@agent-tutor/shared/types";
+import type { IWorkspaceFileRecord } from "@gemini-live-agent/shared/types";
 
 const resolveLanguage = (path: string) => {
   if (path.endsWith(".py")) {
@@ -41,7 +41,7 @@ const getFileIcon = (path: string) => {
 };
 
 const handleBeforeMount = (monaco: Monaco) => {
-  monaco.editor.defineTheme("agent-tutor-dark", {
+  monaco.editor.defineTheme("gemini-live-agent-dark", {
     base: "vs-dark",
     inherit: true,
     colors: {
@@ -144,7 +144,7 @@ export function CodeEditorSurface({
               tabSize: 4,
             }}
             path={activePath}
-            theme="agent-tutor-dark"
+            theme="gemini-live-agent-dark"
             value={activeFile?.content ?? ""}
           />
         </TabsContent>

@@ -2,12 +2,12 @@ import {
   DEFAULT_LESSON_ID,
   DEFAULT_TERMINAL_SESSION_ID,
   getLessonDefinitionById,
-} from "@agent-tutor/shared/consts";
+} from "@gemini-live-agent/shared/consts";
 import type {
   IRuntimeSnapshot,
   IWorkspaceFileRecord,
   IWorkspaceBootstrapResponse,
-} from "@agent-tutor/shared/types";
+} from "@gemini-live-agent/shared/types";
 
 import type { IApiEnv } from "../../../utils/env";
 

@@ -26,7 +26,7 @@ importers:
 
   apps/agent-tutor-live:
     dependencies:
-      '@agent-tutor/shared':
+      '@gemini-live-agent/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@google/genai':
@@ -63,7 +63,7 @@ importers:
 
   apps/api:
     dependencies:
-      '@agent-tutor/shared':
+      '@gemini-live-agent/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       better-auth:
@@ -131,7 +131,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@agent-tutor/shared':
+      '@gemini-live-agent/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@base-ui/react':

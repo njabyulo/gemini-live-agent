@@ -1,5 +1,5 @@
-import { DEFAULT_COURSE_ID, getLessonContextById } from "@agent-tutor/shared/consts";
-import type { ILessonContext } from "@agent-tutor/shared/types";
+import { DEFAULT_COURSE_ID, getLessonContextById } from "@gemini-live-agent/shared/consts";
+import type { ILessonContext } from "@gemini-live-agent/shared/types";
 
 export const getLessonContext = ({
   courseId,
