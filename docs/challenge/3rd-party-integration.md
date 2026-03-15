@@ -22,20 +22,6 @@ Repo evidence:
 - `apps/api/src/index.ts`
 - `apps/api/package.json`
 
-### Cloudflare Sandbox SDK
-
-Used to run the disposable Python coding environment.
-
-This powers:
-- workspace bootstrapping
-- file writes
-- command execution
-
-Repo evidence:
-- `apps/api/src/modules/lesson/workspace`
-- `apps/api/package.json`
-- `infra/apps/api/Dockerfile`
-
 ### Cloudflare D1
 
 Used for auth persistence.
@@ -108,4 +94,4 @@ Repo evidence:
 
 ## Summary
 
-> In addition to the Google challenge stack, `agent-tutor` uses Cloudflare Workers + Hono for the API layer, Cloudflare Sandbox SDK for disposable Python execution, Better Auth + D1 for auth/session persistence, Monaco Editor for code editing, xterm.js for the terminal, html-to-image for workspace screenshot capture, shadcn/ui + Radix primitives for UI, and Zustand for client-side workspace state.
+> In addition to the Google challenge stack, `agent-tutor` uses Cloudflare Workers + Hono for the API layer, Better Auth + D1 for auth/session persistence, Monaco Editor for code editing, xterm.js for the terminal, `html-to-image` for workspace screenshot capture, shadcn/ui + Radix primitives for UI, and Zustand for client-side workspace state.

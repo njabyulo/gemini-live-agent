@@ -14,7 +14,7 @@ Cloudflare deployment configuration for `apps/web` lives here.
 
 ## Route
 
-- `gemini-live.njabulomajozi.com`
+- `gemini-live-agent.njabulomajozi.com`
 
 ## Deploy
 

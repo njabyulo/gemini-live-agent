@@ -1,12 +1,16 @@
 {
   "$schema": "../../../node_modules/wrangler/config-schema.json",
-  "name": "agent-tutor-web",
+  "name": "gemini-live-agent-prod-wk-web-core-00",
   "main": "../../../apps/web/.open-next/worker.js",
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "binding": "ASSETS",
     "directory": "../../../apps/web/.open-next/assets",
   },
   "compatibility_date": "2026-03-12",
+  "vars": {
+    "NEXT_PUBLIC_API_BASE_URL": "https://gemini-live-agent.njabulomajozi.com"
+  },
   "workers_dev": false,
   "observability": {
     "enabled": true,
@@ -14,7 +18,7 @@
   },
   "routes": [
     {
-      "pattern": "gemini-live.njabulomajozi.com",
+      "pattern": "gemini-live-agent.njabulomajozi.com",
       "custom_domain": true,
     },
   ],

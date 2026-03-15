@@ -15,7 +15,7 @@ Create `apps/web/.dev.vars`:
 
 ```bash
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8787
-NEXT_PUBLIC_AGENT_LIVE_WS_URL=ws://localhost:8080/live
+NEXT_PUBLIC_AGENT_TUTOR_LIVE_WS_URL=ws://localhost:8080/live
 ```
 
 ## Run
@@ -49,7 +49,7 @@ At `/app` after login:
 3. Editing `main.py` updates the in-memory lesson state
 4. Running `python3 main.py "Ada Lovelace"` shows real runtime output in the terminal
 5. `Reset lesson` provisions a fresh workspace again
-6. Voice tutor can connect to `apps/agent-live`
+6. Voice tutor can connect to `apps/agent-tutor-live`
 
 ## Quality Checks
 

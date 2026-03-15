@@ -8,9 +8,10 @@ This page is written for Gemini Live Agent Challenge judges.
 
 - The learner-facing app is `apps/web`
 - The lesson/runtime API is `apps/api`
-- The live tutor runtime is `apps/agent-live`
+- The execution backend is `apps/runner-code-executor`
+- The live tutor runtime is `apps/agent-tutor-live`
 - The live tutor backend is hosted on Google Cloud Run
-- The coding workspace runs in Cloudflare Sandbox
+- The execution backend is also hosted on Google Cloud Run
 
 ## System Diagram
 
@@ -23,17 +24,20 @@ flowchart LR
       VC[Voice + screenshot capture]
     end
 
-    subgraph Agent["apps/agent-live · Cloud Run"]
+    subgraph Agent["apps/agent-tutor-live · Cloud Run"]
       WS[WebSocket live session]
       GL[Gemini Live via @google/genai]
       TOOLS[Lesson/runtime grounding tools]
+    end
+
+    subgraph Runner["apps/runner-code-executor · Cloud Run"]
+      EXEC[Ephemeral Python execution]
     end
 
     subgraph API["apps/api · Cloudflare Workers"]
       HONO[Hono API]
       AUTH[Better Auth + D1]
       WORKSPACE[Lesson bootstrap + workspace routes]
-      SANDBOX[Cloudflare Sandbox SDK]
     end
 
     subgraph Shared["packages/shared"]
@@ -47,7 +51,7 @@ flowchart LR
     UI -->|REST / session / workspace| HONO
     HONO --> AUTH
     HONO --> WORKSPACE
-    WORKSPACE --> SANDBOX
+    WORKSPACE --> EXEC
 
     VC -->|WebSocket + text/audio/image context| WS
     WS --> TOOLS
@@ -65,21 +69,20 @@ flowchart LR
 
 1. The learner opens `/app` in `apps/web`.
 2. `apps/web` requests a lesson workspace from `apps/api`.
-3. `apps/api` boots a disposable Python workspace in Cloudflare Sandbox and returns:
+3. `apps/api` returns lesson context, starter files, and the initial runtime snapshot.
+4. When the learner runs code, `apps/api` sends the current lesson files and command to `apps/runner-code-executor`.
+5. `apps/runner-code-executor` creates a fresh temp workspace, executes Python, and returns stdout/stderr.
+6. `apps/api` normalizes that result into the runtime snapshot shape used by the UI.
+7. When the learner asks for help, `apps/web` sends the live tutor:
    - lesson context
-   - starter files
-   - terminal/runtime snapshot
-4. The learner edits code in Monaco and runs commands in xterm.
-5. When the learner asks for help, `apps/web` sends the live tutor:
-   - lesson grounding
    - current source code
    - latest command
    - latest stdout/stderr
    - screenshot of the visible workspace
    - audio or text input
-6. `apps/agent-live` enriches the turn and forwards it to Gemini Live.
-7. Gemini Live responds with transcript and audio output.
-8. `apps/web` renders the tutor response in the learning rail.
+8. `apps/agent-tutor-live` enriches the turn and forwards it to Gemini Live.
+9. Gemini Live responds with transcript and audio output.
+10. `apps/web` renders the tutor response in the learning rail.
 
 ## Why This Architecture Matters For Judging
 
@@ -100,6 +103,7 @@ This architecture is important because the tutor is:
 - challenge-aligned
   - Gemini Live through the Google GenAI SDK
   - live-agent backend hosted on Google Cloud Run
+  - code-execution backend hosted on Google Cloud Run
 
 ## Code Pointers
 
@@ -107,11 +111,13 @@ If you want to inspect the main surfaces directly:
 
 - Web workspace:
   - `apps/web/src/features/live-mentor`
-- Workspace bootstrap and sandbox execution:
+- Workspace bootstrap and runner-backed execution:
   - `apps/api/src/modules/lesson/workspace`
+- Runner service:
+  - `apps/runner-code-executor/src/index.ts`
 - Live tutor entrypoint:
-  - `apps/agent-live/src/index.ts`
+- `apps/agent-tutor-live/src/index.ts`
 - Gemini Live session creation:
-  - `apps/agent-live/src/workflows/createLiveTutorSession.ts`
+- `apps/agent-tutor-live/src/workflows/createLiveTutorSession.ts`
 - Shared lesson/live contracts:
   - `packages/shared/src`

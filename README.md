@@ -5,7 +5,7 @@
 It combines:
 - a browser code editor with Monaco
 - a real terminal powered by xterm.js
-- disposable Python lesson workspaces running on Cloudflare Sandbox
+- disposable Python lesson workspaces executed through an internal runner service
 - a live Gemini tutor hosted on Google Cloud Run
 
 The core product loop is:
@@ -24,8 +24,12 @@ The core product loop is:
 - `apps/api`
   - Hono API on Cloudflare Workers
   - Better Auth + D1
-  - lesson bootstrap and sandbox-backed execution
-- `apps/agent-live`
+  - lesson bootstrap and runner-backed execution
+- `apps/runner-code-executor`
+  - internal Python execution backend
+  - fresh temp workspace per run
+  - Cloud Run deployment target
+- `apps/agent-tutor-live`
   - live agent runtime on Google Cloud Run
   - Gemini Live integration through `@google/genai`
 - `packages/shared`
@@ -51,7 +55,8 @@ The core product loop is:
 2. Create local env files:
    - `apps/api/.dev.vars`
    - `apps/web/.dev.vars`
-   - `apps/agent-live/.env`
+   - `apps/agent-tutor-live/.env`
+   - `apps/runner-code-executor/.env`
 3. Fill in the required secrets.
 4. Start the full stack:
    - `pnpm dev`
@@ -59,7 +64,8 @@ The core product loop is:
 This runs:
 - `apps/web`
 - `apps/api`
-- `apps/agent-live`
+- `apps/agent-tutor-live`
+- `apps/runner-code-executor`
 
 ## Common Commands
 
@@ -69,7 +75,8 @@ This runs:
 - `pnpm build`
 - `pnpm release:web`
 - `pnpm release:api`
-- `pnpm release:agent-live`
+- `pnpm release:agent-tutor-live`
+- `pnpm release:runner-code-executor`
 
 ## Challenge Docs
 
