@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ILiveLessonGrounding } from "@agent-tutor/shared/types";
 
-import { AgentLiveClient } from "../services/agent-live-client";
-import { getAgentLiveWebSocketUrl } from "../services/api-client";
+import { AgentTutorLiveClient } from "../services/agent-tutor-live-client";
+import { getAgentTutorLiveWebSocketUrl } from "../services/api-client";
 import { useLiveMentorStore } from "../states/use-live-mentor-store";
 import type { ILiveMentorAudioRefs } from "../types";
 import {
@@ -42,7 +42,7 @@ export function useVoiceMentor({
 }: {
   captureWorkspaceImage?: () => Promise<string | null>;
 } = {}) {
-  const clientRef = useRef<AgentLiveClient | null>(null);
+  const clientRef = useRef<AgentTutorLiveClient | null>(null);
   const isConnectingRef = useRef(false);
   const audioRefs = useRef<ILiveMentorAudioRefs>({
     audioContext: null,
@@ -276,7 +276,7 @@ export function useVoiceMentor({
     }
 
     if (!clientRef.current) {
-      clientRef.current = new AgentLiveClient();
+      clientRef.current = new AgentTutorLiveClient();
     }
 
     setSessionPhase("connecting");
@@ -295,7 +295,7 @@ export function useVoiceMentor({
           setSessionPhase("error");
           appendTranscript(
             "system",
-            "The live tutor did not connect. Check apps/agent-live and try again.",
+            "The live tutor did not connect. Check apps/agent-tutor-live and try again.",
           );
         },
         onEvent: (event) => {
@@ -312,7 +312,7 @@ export function useVoiceMentor({
         lesson: lessonGrounding,
         ...runtime,
       },
-      url: getAgentLiveWebSocketUrl(),
+      url: getAgentTutorLiveWebSocketUrl(),
     });
 
     return true;
@@ -324,7 +324,7 @@ export function useVoiceMentor({
     }
 
     if (!clientRef.current) {
-      clientRef.current = new AgentLiveClient();
+      clientRef.current = new AgentTutorLiveClient();
     }
 
     const micReady = await startAudioCapture();

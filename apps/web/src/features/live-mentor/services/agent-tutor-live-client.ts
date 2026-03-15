@@ -1,15 +1,15 @@
 import type { TBrowserEvent, TServerEvent } from "@agent-tutor/shared/types";
 
-import type { IAgentLiveClientConnectInput } from "../types";
+import type { IAgentTutorLiveClientConnectInput } from "../types";
 
-export class AgentLiveClient {
+export class AgentTutorLiveClient {
   private socket: WebSocket | null = null;
 
   connect({
     callbacks,
     startPayload,
     url,
-  }: IAgentLiveClientConnectInput): void {
+  }: IAgentTutorLiveClientConnectInput): void {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       return;
     }

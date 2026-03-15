@@ -2,11 +2,11 @@
 
 ## Scope
 
-Deploy `apps/agent-live` to Google Cloud Run.
+Deploy `apps/agent-tutor-live` to Google Cloud Run.
 
 ## Infra Source of Truth
 
-- `infra/apps/agent-live/cloudrun.yaml`
+- `infra/apps/agent-tutor-live/cloudrun.yaml`
 
 ## Required Environment
 
@@ -18,19 +18,19 @@ Deploy `apps/agent-live` to Google Cloud Run.
 
 ## Local Validation Before Deploy
 
-1. `pnpm --filter agent-live lint`
-2. `pnpm --filter agent-live test`
-3. `pnpm --filter agent-live build`
+1. `pnpm --filter agent-tutor-live lint`
+2. `pnpm --filter agent-tutor-live test`
+3. `pnpm --filter agent-tutor-live build`
 
 ## Deploy
 
 ### Dev
 
-`pnpm release:dev:agent-live`
+`pnpm release:dev:agent-tutor-live`
 
 ### Production
 
-`pnpm release:agent-live`
+`pnpm release:agent-tutor-live`
 
 ## Post-Deploy Checks
 

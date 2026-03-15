@@ -12,7 +12,7 @@ export default tseslint.config(
   },
   ...tseslint.configs.recommended,
   {
-    files: ["apps/agent-live/src/**/*.ts", "packages/shared/src/**/*.ts"],
+    files: ["apps/agent-tutor-live/src/**/*.ts", "packages/shared/src/**/*.ts"],
     rules: {
       "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
     },

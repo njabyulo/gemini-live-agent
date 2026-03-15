@@ -233,5 +233,5 @@ wss.on("connection", (socket) => {
 });
 
 server.listen(port, () => {
-  console.log(`[agent-live] listening on http://127.0.0.1:${port}`);
+  console.log(`[agent-tutor-live] listening on http://127.0.0.1:${port}`);
 });

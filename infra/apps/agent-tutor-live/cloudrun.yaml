@@ -1,12 +1,12 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: agent-live
+  name: gemini-live-agent-prod-run-agent-backend-00
 spec:
   template:
     spec:
       containers:
-        - image: us-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/agent-tutor/agent-live:latest
+        - image: us-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/agent-tutor/agent-tutor-live:latest
           ports:
             - containerPort: 8080
           env:
