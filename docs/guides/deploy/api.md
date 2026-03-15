@@ -27,6 +27,15 @@ Required shell environment:
 2. `CLOUDFLARE_API_TOKEN`
 3. `CLOUDFLARE_ZONE_ID`
 
+## Dependencies
+
+Before deploying `apps/api`, make sure:
+
+1. the production D1 database exists:
+   - `gemini-live-agent-prod-d1-auth-core-00`
+2. `apps/runner-code-executor` is deployed on Cloud Run
+3. you know the runner base URL that the API should call
+
 ## Worker Secrets
 
 Set the API secrets with Wrangler against the API config:
@@ -52,15 +61,33 @@ pnpm exec wrangler secret put RUNNER_CODE_EXECUTOR_BASE_URL --config infra/apps/
 Expected values:
 
 1. `BETTER_AUTH_URL`
-   - production origin, for example `https://gemini-live-agent.njabulomajozi.com`
+   - production origin only
+   - use `https://gemini-live-agent.njabulomajozi.com`
+   - do not append `/api`
 2. `BETTER_AUTH_SECRET`
    - long random secret used by Better Auth
 3. `BETTER_AUTH_TRUSTED_ORIGINS`
    - allowed frontend origins, for example `https://gemini-live-agent.njabulomajozi.com`
+   - if you add more origins later, pass a comma-separated list
 4. `BETTER_AUTH_ADMIN_TOKEN`
    - only required if you use the admin migration/bootstrap route
 5. `RUNNER_CODE_EXECUTOR_BASE_URL`
-   - internal runner base URL, for example a Cloud Run service URL for `apps/runner-code-executor`
+   - base URL for `apps/runner-code-executor`
+   - recommended first value: the Cloud Run service URL
+   - if the runner service returns `403`, make it publicly invokable first
+
+Example production secret entry:
+
+```bash
+printf '%s' 'https://gemini-live-agent.njabulomajozi.com' | \
+  pnpm exec wrangler secret put BETTER_AUTH_URL --config infra/apps/api/wrangler.jsonc
+
+printf '%s' 'https://gemini-live-agent.njabulomajozi.com' | \
+  pnpm exec wrangler secret put BETTER_AUTH_TRUSTED_ORIGINS --config infra/apps/api/wrangler.jsonc
+
+printf '%s' 'https://<runner-cloud-run-url>' | \
+  pnpm exec wrangler secret put RUNNER_CODE_EXECUTOR_BASE_URL --config infra/apps/api/wrangler.jsonc
+```
 
 ## Bindings
 
@@ -94,6 +121,21 @@ pnpm exec wrangler deploy --config infra/apps/api/wrangler.jsonc
 pnpm release:api
 ```
 
+## Better Auth Migration
+
+If this is a fresh production D1 database, run the Better Auth migration before judge sign-in:
+
+1. ensure `BETTER_AUTH_ADMIN_TOKEN` is set for the deployed API Worker
+2. call the migration route with that token
+
+Example:
+
+```bash
+curl -X POST \
+  https://gemini-live-agent.njabulomajozi.com/api/platform/migrations/better-auth \
+  -H "x-admin-token: <BETTER_AUTH_ADMIN_TOKEN>"
+```
+
 ## Post-Deploy Checks
 
 1. Better Auth routes respond under `https://gemini-live-agent.njabulomajozi.com/api/auth/*`.
@@ -101,3 +143,8 @@ pnpm release:api
 3. `POST /api/lesson/bootstrap` creates a lesson workspace payload.
 4. `POST /api/lesson/run` executes Python commands successfully.
 5. If `POST /api/lesson/run` fails, verify that `RUNNER_CODE_EXECUTOR_BASE_URL` points at a healthy `apps/runner-code-executor` deployment.
+6. If sign-in fails, re-check:
+   - `BETTER_AUTH_URL`
+   - `BETTER_AUTH_TRUSTED_ORIGINS`
+   - Better Auth migration status in the D1 database
+7. If `RUNNER_CODE_EXECUTOR_BASE_URL/health` returns `403`, add `roles/run.invoker` for `allUsers` on the runner Cloud Run service.

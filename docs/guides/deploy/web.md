@@ -27,6 +27,15 @@ Required shell environment:
 2. `CLOUDFLARE_API_TOKEN`
 3. `CLOUDFLARE_ZONE_ID`
 
+## Dependencies
+
+Before deploying `apps/web`, make sure these are already live:
+
+1. `apps/api`
+   - mounted at `https://gemini-live-agent.njabulomajozi.com/api/*`
+2. `apps/agent-tutor-live`
+   - reachable at its Cloud Run `run.app` WebSocket URL
+
 ## Runtime Config
 
 The web app does not require hidden runtime secrets by default. Its browser-facing config should be set as normal Wrangler `vars`, not `wrangler secret put`, because these values are intentionally exposed to the client bundle.
@@ -42,12 +51,18 @@ Example `vars` block for `infra/apps/web/wrangler.jsonc`:
 {
   "vars": {
     "NEXT_PUBLIC_API_BASE_URL": "https://gemini-live-agent.njabulomajozi.com",
-    "NEXT_PUBLIC_AGENT_TUTOR_LIVE_WS_URL": "wss://<agent-tutor-live-service-url>/live"
+    "NEXT_PUBLIC_AGENT_TUTOR_LIVE_WS_URL": "wss://<agent-tutor-live-service>.a.run.app/live"
   }
 }
 ```
 
 If you change `vars`, deploy the worker again for the change to take effect.
+
+Current source of truth:
+
+- `infra/apps/web/wrangler.jsonc`
+
+If you prefer setting the value through Wrangler rather than editing the file by hand, update the config first, then deploy.
 
 ## Local Validation Before Deploy
 
@@ -55,6 +70,7 @@ If you change `vars`, deploy the worker again for the change to take effect.
 pnpm --filter web lint
 pnpm --filter web test
 pnpm --filter web build
+pnpm exec opennextjs-cloudflare build --config infra/apps/web/wrangler.jsonc
 pnpm exec wrangler check --config infra/apps/web/wrangler.jsonc
 pnpm exec wrangler deploy --dry-run --config infra/apps/web/wrangler.jsonc
 ```
@@ -79,5 +95,6 @@ pnpm release:web
 2. Login moves the user into `/app`.
 3. The frontend can reach:
    - `https://gemini-live-agent.njabulomajozi.com/api/*`
-   - the `apps/agent-tutor-live` WebSocket endpoint configured in `NEXT_PUBLIC_AGENT_TUTOR_LIVE_WS_URL`
+   - the configured `agent-tutor-live` WebSocket URL
 4. `/app` renders the editor, terminal, and learning rail without runtime configuration errors.
+5. If the live tutor WebSocket fails with `403`, add `roles/run.invoker` for `allUsers` on the `agent-tutor-live` Cloud Run service.

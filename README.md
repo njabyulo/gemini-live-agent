@@ -90,5 +90,11 @@ These docs are intended to support the Gemini Live Agent Challenge submission di
 
 ## Additional Docs
 
-- [Development guides](docs/guides/dev/README.md)
-- [Deployment guides](docs/guides/deploy/README.md)
+- [Web development guide](docs/guides/dev/web.md)
+- [API development guide](docs/guides/dev/api.md)
+- [Agent tutor live development guide](docs/guides/dev/agent-tutor-live.md)
+- [Runtime code executor development guide](docs/guides/dev/runtime-code-executor.md)
+- [Web deployment guide](docs/guides/deploy/web.md)
+- [API deployment guide](docs/guides/deploy/api.md)
+- [Agent tutor live deployment guide](docs/guides/deploy/agent-tutor-live.md)
+- [Runtime code executor deployment guide](docs/guides/deploy/runtime-code-executor.md)
