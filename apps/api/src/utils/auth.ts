@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import type { ISessionSummary } from "@gemini-live-agent/shared/types";
 
 import { getTrustedOrigins, type IApiEnv } from "./env";
+import { hashWorkerPassword, verifyWorkerPassword } from "./password";
 
 export const getAuth = (env: IApiEnv) =>
   betterAuth({
@@ -10,6 +11,10 @@ export const getAuth = (env: IApiEnv) =>
     database: env.DB,
     emailAndPassword: {
       enabled: true,
+      password: {
+        hash: hashWorkerPassword,
+        verify: verifyWorkerPassword,
+      },
     },
     trustedOrigins: getTrustedOrigins(env),
   });
