@@ -12,7 +12,7 @@
     "test": "pnpm run test:unit && pnpm run test:e2e",
     "test:unit": "vitest run --passWithNoTests",
     "test:e2e": "echo \"No e2e tests for agent-tutor-live\"",
-    "build": "tsup src/index.ts --format esm --dts --out-dir dist --clean",
+    "build": "tsup",
     "release:dev": "gcloud run services replace ../../infra/apps/agent-tutor-live/cloudrun.yaml --region=${GOOGLE_CLOUD_REGION:-us-central1}",
     "release": "gcloud run services replace ../../infra/apps/agent-tutor-live/cloudrun.yaml --region=${GOOGLE_CLOUD_REGION:-us-central1}",
     "clean": "find . -name dist -prune -exec rm -r {} + 2>/dev/null || true",
