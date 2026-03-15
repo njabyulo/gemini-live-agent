@@ -16,7 +16,9 @@ app.onError(handleApiError);
 
 app.use(logger());
 app.use("/api/*", applyApiCors);
-app.use("/api/*", attachSession);
+app.use("/api/session", attachSession);
+app.use("/api/live/*", attachSession);
+app.use("/api/lesson/*", attachSession);
 
 app.route("/", createHealthRoutes());
 app.route("/", createMigrationRoutes());
